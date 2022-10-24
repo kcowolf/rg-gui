@@ -1,0 +1,67 @@
+﻿<Window x:Class="rg_gui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:rg_gui"
+        mc:Ignorable="d"
+        Title="rg-gui" Height="450" Width="800"
+        d:DataContext="{d:DesignInstance Type=local:RipGrepWrapper}">
+    <Grid Margin="5,5,5,5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0" Margin="0,0,0,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Margin="0,0,5,5" Content="In Folder" VerticalContentAlignment="Center"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,5" x:Name="txtBasePath" TextWrapping="NoWrap" VerticalContentAlignment="Center"/>
+            <Button Grid.Row="0" Grid.Column="4" Margin="5,0,0,5" x:Name="btnBrowse" Content="Browse" Click="btnBrowse_Click"/>
+            <Button Grid.Row="0" Grid.Column="5" Grid.RowSpan="2" Margin="5,0,0,5" x:Name="btnStart" Content="Start" Click="btnStart_Click" MinWidth="80"/>
+            <Label Grid.Row="1" Grid.Column="0" Margin="0,0,5,5" Content="Include Files" VerticalContentAlignment="Center"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,5" x:Name="txtIncludeFiles" TextWrapping="NoWrap" VerticalContentAlignment="Center"/>
+            <Label Grid.Row="1" Grid.Column="2" Margin="5,0,5,5" Content="Exclude Files" VerticalContentAlignment="Center"/>
+            <TextBox Grid.Row="1" Grid.Column="3" Margin="0,0,0,5" x:Name="txtExcludeFiles" TextWrapping="NoWrap" VerticalContentAlignment="Center"/>
+            <CheckBox Grid.Row="1" Grid.Column="4" Margin="5,0,0,5" x:Name="chkRecursive" Content="Recursive" VerticalContentAlignment="Center"/>
+            <Label Grid.Row="2" Grid.Column="0" Margin="0,0,5,5" Content="Containing Text" VerticalContentAlignment="Center"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,5" x:Name="txtContainingText" TextWrapping="NoWrap" VerticalContentAlignment="Center"/>
+            <CheckBox Grid.Row="2" Grid.Column="4" Margin="5,0,0,5" x:Name="chkCaseSensitive" Content="Case-sensitive" VerticalContentAlignment="Center"/>
+            <Button Grid.Row="2" Grid.Column="5" Margin="5,0,0,5" x:Name="btnCancel" Content="Cancel" Click="btnCancel_Click" IsEnabled="False"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding}" AutoGenerateColumns="False" SelectionChanged="gridFileResults_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Filename" Binding="{Binding Filename}"/>
+                    <DataGridTextColumn Header="Path" Binding="{Binding Path}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext"/>
+            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Line" Binding="{Binding Line}"/>
+                    <DataGridTextColumn Header="Content" Binding="{Binding Content}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Window>
