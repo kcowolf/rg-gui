@@ -1,9 +1,10 @@
-﻿// TODO -- Need to add safety-checks for setting arguments
-// TODO -- Add file/line result counts, display in UI
+﻿// TODO -- Need to add safety-checks for setting RipGrep arguments
 // TODO -- Support recursive flag -- set max-depth to 1 if false
+// TODO -- Add file/line result counts, display in UI
 // TODO -- Allow files to be right-clicked, display Windows context menu
-// TODO -- Change grid display (remove inner borders)
-// TODO -- Need to figure out exceptions -- no results throws an exception and terminates the app
+//             This works, but has limitation that all files must be in same folder.
+// TODO -- Remove base folder (search path) from list of resuls, only display path relative to it.
+// TODO -- Save window size, splitter position.
 
 using CliWrap;
 using CliWrap.EventStream;
@@ -107,7 +108,8 @@ namespace rg_gui
             argsBuilder.Append(searchParameters.StartPath);
 
             var cmd = Cli.Wrap(m_ripGrepPath)
-                .WithArguments(argsBuilder.ToString());
+                .WithArguments(argsBuilder.ToString())
+                .WithValidation(CommandResultValidation.None);
             
             try
             {

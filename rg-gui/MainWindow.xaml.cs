@@ -1,10 +1,14 @@
 ﻿using Ookii.Dialogs.Wpf;
+using Peter;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using static rg_gui.RipGrepWrapper;
 
 namespace rg_gui
@@ -74,6 +78,30 @@ namespace rg_gui
             {
                 FileResultItems.Add(new FileSearchResult(result.path, result.filename));
             });
+        }
+
+        private void gridFileResults_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if ((e.RightButton == MouseButtonState.Pressed && !SystemParameters.SwapButtons) || (e.LeftButton == MouseButtonState.Pressed && SystemParameters.SwapButtons))
+            {
+                var selectedFiles = new List<FileInfo>();
+
+                foreach (var selectedItem in gridFileResults.SelectedItems)
+                {
+                    if (selectedItem is FileSearchResult fileSearchResult)
+                    {
+                        selectedFiles.Add(new FileInfo(Path.Combine(fileSearchResult.Path, fileSearchResult.Filename)));
+                    }
+                }
+
+                if (selectedFiles.Any())
+                {
+                    var point = PointToScreen(e.MouseDevice.GetPosition(this));
+
+                    var shellContextMenu = new ShellContextMenu();
+                    shellContextMenu.ShowContextMenu(selectedFiles, new System.Drawing.Point((int)point.X, (int)point.Y));
+                }
+            }
         }
 
         private void gridFileResults_SelectionChanged(object? sender, EventArgs e)

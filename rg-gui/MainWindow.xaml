@@ -49,17 +49,17 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding}" AutoGenerateColumns="False" SelectionChanged="gridFileResults_SelectionChanged">
+            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding}" AutoGenerateColumns="False" MouseDown="gridFileResults_MouseDown" SelectionChanged="gridFileResults_SelectionChanged" GridLinesVisibility="None">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Filename" Binding="{Binding Filename}"/>
-                    <DataGridTextColumn Header="Path" Binding="{Binding Path}"/>
+                    <DataGridTextColumn Header="Filename" Binding="{Binding Filename, Mode=OneWay}"/>
+                    <DataGridTextColumn Header="Path" Binding="{Binding Path, Mode=OneWay}"/>
                 </DataGrid.Columns>
             </DataGrid>
             <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext"/>
-            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding}" AutoGenerateColumns="False">
+            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding}" AutoGenerateColumns="False" GridLinesVisibility="None">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Line" Binding="{Binding Line}"/>
-                    <DataGridTextColumn Header="Content" Binding="{Binding Content}"/>
+                    <DataGridTextColumn Header="Line" Binding="{Binding Line, Mode=OneWay}"/>
+                    <DataGridTextColumn Header="Content" Binding="{Binding Content, Mode=OneWay}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
