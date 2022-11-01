@@ -1,9 +1,6 @@
-﻿// TODO -- Need to add safety-checks for setting RipGrep arguments
-// TODO -- Support recursive flag -- set max-depth to 1 if false
-// TODO -- Add file/line result counts, display in UI
+﻿// TODO -- Add file/line result counts, display in UI
 // TODO -- Allow files to be right-clicked, display Windows context menu
 //             This works, but has limitation that all files must be in same folder.
-// TODO -- Remove base folder (search path) from list of resuls, only display path relative to it.
 // TODO -- Save window size, splitter position.
 
 using CliWrap;
@@ -14,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,13 +25,15 @@ namespace rg_gui
 
             public string SearchString { get; set; } = string.Empty;
 
-            public IEnumerable<string> IncludePatterns { get; set; } = Enumerable.Empty<string>();
+            public string IncludePatterns { get; set; } = string.Empty;
 
-            public IEnumerable<string> ExcludePatterns { get; set; } = Enumerable.Empty<string>();
+            public string ExcludePatterns { get; set; } = string.Empty;
 
-            public bool IgnoreCase { get; set; }
+            public bool IncludeHiddenFiles { get; set; } = true;
 
-            public bool Recursive { get; set; }
+            public bool IgnoreCase { get; set; } = true;
+
+            public bool Recursive { get; set; } = true;
         }
 
         public class ResultLine
@@ -85,19 +85,32 @@ namespace rg_gui
                 argsBuilder.Append("-i ");
             }
 
-            if (searchParameters.IncludePatterns.Any())
+            if (searchParameters.IncludeHiddenFiles)
+            {
+                argsBuilder.Append("--hidden ");
+            }
+
+            if (!searchParameters.Recursive)
+            {
+                argsBuilder.Append("--max-depth=1 ");
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchParameters.IncludePatterns))
             {
                 argsBuilder.Append("-g={");
-                argsBuilder.Append(string.Join(",", searchParameters.IncludePatterns));
+                argsBuilder.AppendJoin(",", GetSearchPatterns(searchParameters.IncludePatterns));
                 argsBuilder.Append("} ");
             }
 
             if (searchParameters.ExcludePatterns.Any())
             {
                 argsBuilder.Append("-g=!{");
-                argsBuilder.Append(string.Join(",", searchParameters.ExcludePatterns));
+                argsBuilder.AppendJoin(",", GetSearchPatterns(searchParameters.ExcludePatterns));
                 argsBuilder.Append("} ");
             }
+
+            // Signal no more flags will be set.
+            argsBuilder.Append("-- ");
 
             if (!string.IsNullOrWhiteSpace(searchParameters.SearchString))
             {
@@ -144,6 +157,39 @@ namespace rg_gui
             catch (OperationCanceledException)
             {
             }
+        }
+
+        private readonly char[] PatternDelimiters = { ' ', ':', ';', ',' };
+
+        private IEnumerable<string> GetSearchPatterns(string patternString)
+        {
+            var searchPatterns = new List<string>();
+            var splitPatternString = patternString.Split(PatternDelimiters, StringSplitOptions.RemoveEmptyEntries);
+
+            var invalidChars = Path.GetInvalidFileNameChars().Where(x => x != Path.DirectorySeparatorChar && x != '*').ToList();
+            invalidChars.Add('{');
+            invalidChars.Add('}');
+
+            foreach (var token in splitPatternString)
+            {
+                var pattern = token;
+
+                // Remove any invalid characters from patterns.
+                foreach (var c in invalidChars)
+                {
+                    pattern = pattern.Replace(c.ToString(), string.Empty);
+                }
+
+                // Remove any whitespace from patterns.
+                pattern = Regex.Replace(pattern, @"\s+", "");
+
+                if (!string.IsNullOrWhiteSpace(pattern))
+                {
+                    searchPatterns.Add(pattern);
+                }
+            }
+
+            return searchPatterns;
         }
     }
 }

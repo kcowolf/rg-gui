@@ -153,8 +153,8 @@ namespace rg_gui
                     SearchString = txtContainingText.Text,
                     IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
                     Recursive = chkRecursive.IsChecked ?? true,
-                    IncludePatterns = txtIncludeFiles.Text.Split(';'),
-                    ExcludePatterns = txtExcludeFiles.Text.Split(';')
+                    IncludePatterns = txtIncludeFiles.Text,
+                    ExcludePatterns = txtExcludeFiles.Text
                 };
 
                 FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());
