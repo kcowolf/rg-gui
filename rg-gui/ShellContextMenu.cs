@@ -1,5 +1,6 @@
 // Based on https://pastebin.com/bfjX7ysX
 // Earlier version can be found here: https://www.codeproject.com/Articles/22012/Explorer-Shell-Context-Menu
+// Licensed under The Code Project Open License (CPOL) 1.02, https://www.codeproject.com/info/cpol10.aspx
 
 using System;
 using System.Text;
@@ -7,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
-using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 
