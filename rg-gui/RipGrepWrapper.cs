@@ -2,6 +2,7 @@
 // TODO -- Allow files to be right-clicked, display Windows context menu
 //             This works, but has limitation that all files must be in same folder.
 // TODO -- Save window size, splitter position.
+// TODO -- Consider allowing searches for multiple terms -- split by spaces (but keeping quoted strings together) and pipe result from each word into the next invocation.
 
 using CliWrap;
 using CliWrap.EventStream;

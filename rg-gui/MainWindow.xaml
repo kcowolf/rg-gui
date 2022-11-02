@@ -38,7 +38,7 @@
             <TextBox Grid.Row="1" Grid.Column="3" Margin="0,0,0,5" x:Name="txtExcludeFiles" TextWrapping="NoWrap" VerticalContentAlignment="Center"/>
             <CheckBox Grid.Row="1" Grid.Column="4" Margin="5,0,0,5" x:Name="chkRecursive" Content="Recursive" VerticalContentAlignment="Center"/>
             <Label Grid.Row="2" Grid.Column="0" Margin="0,0,5,5" Content="Containing Text" VerticalContentAlignment="Center"/>
-            <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,5" x:Name="txtContainingText" TextWrapping="NoWrap" VerticalContentAlignment="Center"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,5" x:Name="txtContainingText" TextWrapping="NoWrap" VerticalContentAlignment="Center" KeyDown="txtContainingText_OnKeyDown"/>
             <CheckBox Grid.Row="2" Grid.Column="4" Margin="5,0,0,5" x:Name="chkCaseSensitive" Content="Case-sensitive" VerticalContentAlignment="Center"/>
             <Button Grid.Row="2" Grid.Column="5" Margin="5,0,0,5" x:Name="btnCancel" Content="Cancel" Click="btnCancel_Click" IsEnabled="False"/>
         </Grid>

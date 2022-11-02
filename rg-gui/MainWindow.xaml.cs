@@ -195,5 +195,18 @@ namespace rg_gui
         {
             m_cancellationTokenSource?.Cancel();
         }
+
+        private void txtContainingText_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter || e.Key == Key.Return)
+            {
+                e.Handled = true;
+
+                if (btnStart.IsEnabled)
+                {
+                    btnStart.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                }
+            }
+        }
     }
 }
