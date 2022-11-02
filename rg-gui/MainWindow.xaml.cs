@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using static rg_gui.RipGrepWrapper;
 
@@ -48,8 +49,8 @@ namespace rg_gui
 
         private readonly RipGrepWrapper m_ripGrepWrapper;
 
-        public RangeObservableCollection<FileSearchResult> FileResultItems = new RangeObservableCollection<FileSearchResult>();
-        public RangeObservableCollection<ResultLine> ResultLineItems = new RangeObservableCollection<ResultLine>();
+        public RangeObservableCollection<FileSearchResult> FileResultItems = new();
+        public RangeObservableCollection<ResultLine> ResultLineItems = new();
 
         public MainWindow()
         {
@@ -104,19 +105,20 @@ namespace rg_gui
             }
         }
 
-        private void gridFileResults_SelectionChanged(object? sender, EventArgs e)
+        private void gridFileResults_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
-
-            var selectedIndex = gridFileResults.SelectedIndex;
-            if (selectedIndex >= 0)
+            if (e.AddedItems.Count > 0)
             {
-                var fileResultItem = FileResultItems.ElementAt(gridFileResults.SelectedIndex);
-                var resultLines = m_ripGrepWrapper.Results[(fileResultItem.Path, fileResultItem.Filename)];
-                
-                foreach (var resultLine in resultLines)
+                if (e.AddedItems[0] is FileSearchResult addedItem)
                 {
-                    ResultLineItems.Add(new ResultLine(resultLine.LineNumber, resultLine.LineContent.Trim()));
+                    ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
+
+                    var resultLines = m_ripGrepWrapper.Results[(addedItem.Path, addedItem.Filename)];
+
+                    foreach (var resultLine in resultLines)
+                    {
+                        ResultLineItems.Add(new ResultLine(resultLine.LineNumber, resultLine.LineContent.Trim()));
+                    }
                 }
             }
         }
