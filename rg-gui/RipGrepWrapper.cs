@@ -1,8 +1,7 @@
 ﻿// TODO -- Add file/line result counts, display in UI
-// TODO -- Allow files to be right-clicked, display Windows context menu
-//             This works, but has limitation that all files must be in same folder.
-// TODO -- Save window size, splitter position.
-// TODO -- Consider allowing searches for multiple terms -- split by spaces (but keeping quoted strings together) and pipe result from each word into the next invocation.
+// TODO -- Improve right-click support (only works if all files in the same folder.)
+// TODO -- Save splitter position.
+// TODO -- Improve searches for multiple words.
 
 using CliWrap;
 using CliWrap.EventStream;

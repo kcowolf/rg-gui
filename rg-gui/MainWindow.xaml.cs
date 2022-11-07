@@ -19,6 +19,20 @@ namespace rg_gui
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const double DEFAULT_MAINWINDOW_LEFT = 0;
+        private const double DEFAULT_MAINWINDOW_TOP = 0;
+        private const double DEFAULT_MAINWINDOW_WIDTH = 800;
+        private const double DEFAULT_MAINWINDOW_HEIGHT = 450;
+        private const int DEFAULT_MAINWINDOW_STATE = 0;
+
+        private const string DEFAULT_BASEPATH = "";
+        private const string DEFAULT_INCLUDEFILES = "";
+        private const string DEFAULT_EXCLUDEFILES = "";
+        private const string DEFAULT_CONTAININGTEXT = "";
+
+        private const string DEFAULT_CASESENSITIVE = "false";
+        private const string DEFAULT_RECURSIVE = "true";
+
         public class FileSearchResult
         {
             public string Path { get; }
@@ -57,12 +71,18 @@ namespace rg_gui
             InitializeComponent();
 
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            txtBasePath.Text = config.AppSettings.Settings["BasePath"]?.Value ?? string.Empty;
-            txtIncludeFiles.Text = config.AppSettings.Settings["IncludeFiles"]?.Value ?? string.Empty;
-            txtExcludeFiles.Text = config.AppSettings.Settings["ExcludeFiles"]?.Value ?? string.Empty;
-            txtContainingText.Text = config.AppSettings.Settings["ContainingText"]?.Value ?? string.Empty;
-            chkCaseSensitive.IsChecked = bool.Parse(config.AppSettings.Settings["CaseSensitive"]?.Value ?? "false");
-            chkRecursive.IsChecked = bool.Parse(config.AppSettings.Settings["Recursive"]?.Value ?? "true");
+            Left = double.TryParse(config.AppSettings.Settings["MainWindowLeft"].Value, out var left) ? left : DEFAULT_MAINWINDOW_LEFT;
+            Top = double.TryParse(config.AppSettings.Settings["MainWindowTop"].Value, out var top) ? top : DEFAULT_MAINWINDOW_TOP;
+            Width = double.TryParse(config.AppSettings.Settings["MainWindowWidth"].Value, out var width) ? width : DEFAULT_MAINWINDOW_WIDTH;
+            Height = double.TryParse(config.AppSettings.Settings["MainWindowHeight"].Value, out var height) ? height : DEFAULT_MAINWINDOW_HEIGHT;
+            WindowState = int.TryParse(config.AppSettings.Settings["MainWindowState"].Value, out var windowState) ? WindowState : DEFAULT_MAINWINDOW_STATE;
+
+            txtBasePath.Text = config.AppSettings.Settings["BasePath"]?.Value ?? DEFAULT_BASEPATH;
+            txtIncludeFiles.Text = config.AppSettings.Settings["IncludeFiles"]?.Value ?? DEFAULT_INCLUDEFILES;
+            txtExcludeFiles.Text = config.AppSettings.Settings["ExcludeFiles"]?.Value ?? DEFAULT_EXCLUDEFILES;
+            txtContainingText.Text = config.AppSettings.Settings["ContainingText"]?.Value ?? DEFAULT_CONTAININGTEXT;
+            chkCaseSensitive.IsChecked = bool.Parse(config.AppSettings.Settings["CaseSensitive"]?.Value ?? DEFAULT_CASESENSITIVE);
+            chkRecursive.IsChecked = bool.Parse(config.AppSettings.Settings["Recursive"]?.Value ?? DEFAULT_RECURSIVE);
 
             m_ripGrepWrapper = new RipGrepWrapper(config.AppSettings.Settings["RipGrepPath"]?.Value ?? throw new Exception("RipGrepPath not set."));
 
@@ -71,6 +91,26 @@ namespace rg_gui
             gridResultLines.DataContext = ResultLineItems;
 
             m_ripGrepWrapper.FileFound += OnFileAdded;
+        }
+
+        private void OnClosing(object? sender, EventArgs e)
+        {
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            config.AppSettings.Settings["MainWindowLeft"].Value = Left.ToString();
+            config.AppSettings.Settings["MainWindowTop"].Value = Top.ToString();
+            config.AppSettings.Settings["MainWindowWidth"].Value = Width.ToString();
+            config.AppSettings.Settings["MainWindowHeight"].Value = Height.ToString();
+            config.AppSettings.Settings["MainWindowState"].Value = ((int)WindowState).ToString();
+
+            config.AppSettings.Settings["BasePath"].Value = txtBasePath.Text;
+            config.AppSettings.Settings["IncludeFiles"].Value = txtIncludeFiles.Text;
+            config.AppSettings.Settings["ExcludeFiles"].Value = txtExcludeFiles.Text;
+            config.AppSettings.Settings["ContainingText"].Value = txtContainingText.Text;
+            config.AppSettings.Settings["CaseSensitive"].Value = (chkCaseSensitive.IsChecked ?? bool.Parse(DEFAULT_CASESENSITIVE)) ? "true" : "false";
+            config.AppSettings.Settings["Recursive"].Value = (chkRecursive.IsChecked ?? bool.Parse(DEFAULT_RECURSIVE)) ? "true" : "false";
+            config.Save();
+
+            ConfigurationManager.RefreshSection("appSettings");
         }
 
         private void OnFileAdded(object? sender, (string path, string filename) result)
@@ -131,16 +171,6 @@ namespace rg_gui
             {
                 return;
             }
-
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["BasePath"].Value = txtBasePath.Text;
-            config.AppSettings.Settings["IncludeFiles"].Value = txtIncludeFiles.Text;
-            config.AppSettings.Settings["ExcludeFiles"].Value = txtExcludeFiles.Text;
-            config.AppSettings.Settings["ContainingText"].Value = txtContainingText.Text;
-            config.AppSettings.Settings["CaseSensitive"].Value = (chkCaseSensitive.IsChecked ?? false) ? "true" : "false";
-            config.AppSettings.Settings["Recursive"].Value = (chkRecursive.IsChecked ?? true) ? "true" : "false";
-            config.Save();
-            ConfigurationManager.RefreshSection("appSettings");
 
             btnStart.IsEnabled = false;
             btnCancel.IsEnabled = true;

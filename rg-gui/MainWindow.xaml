@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:rg_gui"
         mc:Ignorable="d"
         Title="rg-gui" Height="450" Width="800"
-        d:DataContext="{d:DesignInstance Type=local:RipGrepWrapper}">
+        d:DataContext="{d:DesignInstance Type=local:RipGrepWrapper}"
+        Closing="OnClosing">
     <Grid Margin="5,5,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
