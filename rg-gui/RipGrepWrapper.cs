@@ -1,7 +1,6 @@
 ﻿// TODO -- Add file/line result counts, display in UI
 // TODO -- Improve right-click support (only works if all files in the same folder.)
 // TODO -- Save splitter position.
-// TODO -- Improve searches for multiple words.
 
 using CliWrap;
 using CliWrap.EventStream;
@@ -48,12 +47,12 @@ namespace rg_gui
             public string LineContent { get; }
         }
 
-        public readonly ConcurrentDictionary<(string path, string filename), List<ResultLine>> Results = new();
+        public readonly ConcurrentDictionary<(string path, string filename, int index), List<ResultLine>> Results = new();
 
-        public event EventHandler<(string path, string filename)>? FileFound;
-        protected void RaiseFileFound(string path, string filename)
+        public event EventHandler<(string path, string filename, int index)>? FileFound;
+        protected void RaiseFileFound(string path, string filename, int index)
         {
-            FileFound?.Invoke(this, (path, filename));
+            FileFound?.Invoke(this, (path, filename, index));
         }
 
         private string m_ripGrepPath;
@@ -63,11 +62,14 @@ namespace rg_gui
             m_ripGrepPath = ripGrepPath;
         }
 
-        public async Task Search(SearchParameters searchParameters, CancellationToken cancellationToken)
+        public void Clear()
+        {
+            Results.Clear();
+        }
+
+        public async Task Search(SearchParameters searchParameters, CancellationToken cancellationToken, int index)
         {
             const string fieldMatchSeparator = "\t";
-
-            Results.Clear();
 
             if (string.IsNullOrWhiteSpace(searchParameters.StartPath))
             {
@@ -137,15 +139,15 @@ namespace rg_gui
                                 var path = Path.GetDirectoryName(result[0]) ?? string.Empty;
                                 var filename = Path.GetFileName(result[0]) ?? string.Empty;
 
-                                if (!Results.ContainsKey((path, filename)))
+                                if (!Results.ContainsKey((path, filename, index)))
                                 {
-                                    Results.GetOrAdd((path, filename), new List<ResultLine>());
-                                    RaiseFileFound(path, filename);
+                                    Results.GetOrAdd((path, filename, index), new List<ResultLine>());
+                                    RaiseFileFound(path, filename, index);
                                 }
 
                                 if (result.Length == 3)
                                 {
-                                    Results[(path, filename)].Add(new ResultLine(int.Parse(result[1]), result[2]));
+                                    Results[(path, filename, index)].Add(new ResultLine(int.Parse(result[1]), result[2]));
                                 }
                             }
                             break;

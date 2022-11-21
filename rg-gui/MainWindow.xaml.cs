@@ -1,10 +1,12 @@
-﻿using Ookii.Dialogs.Wpf;
+﻿using ConcurrentCollections;
+using Ookii.Dialogs.Wpf;
 using Peter;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,6 +34,9 @@ namespace rg_gui
 
         private const string DEFAULT_CASESENSITIVE = "false";
         private const string DEFAULT_RECURSIVE = "true";
+
+        private const int MIN_SEARCH_INSTANCES = 1;
+        private const int MAX_SEARCH_INSTANCES = 10;
 
         public class FileSearchResult
         {
@@ -65,6 +70,9 @@ namespace rg_gui
 
         public RangeObservableCollection<FileSearchResult> FileResultItems = new();
         public RangeObservableCollection<ResultLine> ResultLineItems = new();
+
+        private readonly ConcurrentHashSet<(string, string, int)> m_fileResults = new();
+        private int m_searchInstanceCount;
 
         public MainWindow()
         {
@@ -113,11 +121,27 @@ namespace rg_gui
             ConfigurationManager.RefreshSection("appSettings");
         }
 
-        private void OnFileAdded(object? sender, (string path, string filename) result)
+        private void OnFileAdded(object? sender, (string path, string filename, int index) result)
         {
+            m_fileResults.Add((result.path, result.filename, result.index));
+
+            // If result not present in all lists, return.
+            for(int i = 0; i < m_searchInstanceCount; i++)
+            {
+                if (!m_fileResults.Contains((result.path, result.filename, i)))
+                {
+                    return;
+                }
+            }
+
+            // If we reach this point, result was found by all search instances.
             Application.Current.Dispatcher.Invoke(delegate
             {
-                FileResultItems.Add(new FileSearchResult(result.path, result.filename));
+                // Ensure the same result won't be added multiple times.
+                if (!FileResultItems.Any(x => x.Path == result.path && x.Filename == result.filename))
+                {
+                    FileResultItems.Add(new FileSearchResult(result.path, result.filename));
+                }
             });
         }
 
@@ -153,11 +177,16 @@ namespace rg_gui
                 {
                     ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
 
-                    var resultLines = m_ripGrepWrapper.Results[(addedItem.Path, addedItem.Filename)];
-
-                    foreach (var resultLine in resultLines)
+                    for (int i = 0; i < m_searchInstanceCount; i++)
                     {
-                        ResultLineItems.Add(new ResultLine(resultLine.LineNumber, resultLine.LineContent.Trim()));
+                        var resultLines = m_ripGrepWrapper.Results[(addedItem.Path, addedItem.Filename, i)];
+                        foreach (var resultLine in resultLines)
+                        {
+                            if (!ResultLineItems.Any(x => x.Line == resultLine.LineNumber))
+                            {
+                                ResultLineItems.Add(new ResultLine(resultLine.LineNumber, resultLine.LineContent.Trim()));
+                            }
+                        }
                     }
                 }
             }
@@ -172,29 +201,47 @@ namespace rg_gui
                 return;
             }
 
+            // Based on https://stackoverflow.com/questions/52194058/regex-with-escaped-double-quotes
+            var searchTerms = Regex.Matches(txtContainingText.Text, @"""[^""\\]*(?:\\.[^""\\]*)*""|([^\s])+|[^\s""]+");
+            if (searchTerms.Count < MIN_SEARCH_INSTANCES || searchTerms.Count > MAX_SEARCH_INSTANCES)
+            {
+                return;
+            }
+
             btnStart.IsEnabled = false;
             btnCancel.IsEnabled = true;
             var cancellationTokenSource = new CancellationTokenSource();
             m_cancellationTokenSource = cancellationTokenSource;
-            
+
+            m_searchInstanceCount = searchTerms.Count;
+            m_fileResults.Clear();
+
+            m_ripGrepWrapper.Clear();
+
             try
             {
-                var searchParameters = new SearchParameters
+                int index = 0;
+                var ripGrepTasks = new List<Task>();
+                foreach (var searchTerm in searchTerms.Cast<Match>())
                 {
-                    StartPath = txtBasePath.Text,
-                    SearchString = txtContainingText.Text,
-                    IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
-                    Recursive = chkRecursive.IsChecked ?? true,
-                    IncludePatterns = txtIncludeFiles.Text,
-                    ExcludePatterns = txtExcludeFiles.Text
-                };
+                    var searchParameters = new SearchParameters
+                    {
+                        StartPath = txtBasePath.Text,
+                        SearchString = searchTerm.Value,
+                        IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
+                        Recursive = chkRecursive.IsChecked ?? true,
+                        IncludePatterns = txtIncludeFiles.Text,
+                        ExcludePatterns = txtExcludeFiles.Text
+                    };
 
-                FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());
+                    FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());
 
-                await Task.Run(() =>
-                {
-                    return m_ripGrepWrapper.Search(searchParameters, cancellationTokenSource.Token);
-                });
+                    ripGrepTasks.Add(m_ripGrepWrapper.Search(searchParameters, cancellationTokenSource.Token, index));
+
+                    index++;
+                }
+
+                await Task.WhenAll(ripGrepTasks);
             }
             finally
             {
