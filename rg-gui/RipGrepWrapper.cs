@@ -120,7 +120,7 @@ namespace rg_gui
                 argsBuilder.Append(' ');
             }
 
-            argsBuilder.Append(searchParameters.StartPath);
+            argsBuilder.Append($"\"{searchParameters.StartPath}\"");
 
             var cmd = Cli.Wrap(m_ripGrepPath)
                 .WithArguments(argsBuilder.ToString())

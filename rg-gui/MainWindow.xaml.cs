@@ -194,6 +194,12 @@ namespace rg_gui
 
         private async void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            if ((txtBasePath.Text.IndexOfAny(Path.GetInvalidPathChars()) != -1) || !Directory.Exists(txtBasePath.Text))
+            {
+                MessageBox.Show("Invalid \"In Folder\" path.", "Error");
+                return;
+            }
+
             // based on https://stackoverflow.com/questions/66598956/how-to-stop-a-method-triggered-by-button-click-in-wpf
 
             if (m_cancellationTokenSource != null)
