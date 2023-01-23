@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="rg-gui" Height="450" Width="800"
         d:DataContext="{d:DesignInstance Type=local:RipGrepWrapper}"
-        Closing="OnClosing">
+        Closing="OnClosing" Icon="pack://application:,,,/icon.ico">
     <Grid Margin="5,5,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
