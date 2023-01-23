@@ -38,6 +38,13 @@ namespace rg_gui
         private const int MIN_SEARCH_INSTANCES = 1;
         private const int MAX_SEARCH_INSTANCES = 10;
 
+        private string m_currentInput = string.Empty;
+        private string? m_currentSuggestion = string.Empty;
+        private string m_currentText = string.Empty;
+        private int m_selectionStart;
+        private int m_selectionLength;
+        private IEnumerable<string> m_folderSuggestionValues = Enumerable.Empty<string>();
+
         public class FileSearchResult
         {
             public string Path { get; }
@@ -289,6 +296,38 @@ namespace rg_gui
                 {
                     btnStart.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 }
+            }
+        }
+
+        private void txtBasePath_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateFolderSuggestionValues();
+
+            // Based on https://learn.microsoft.com/en-us/answers/questions/840981/auto-complete-for-textbox-in-wpf-(mvvm)
+            var input = txtBasePath.Text;
+            if (input.Length > m_currentInput.Length && input != m_currentSuggestion)
+            {
+                m_currentSuggestion = m_folderSuggestionValues.FirstOrDefault(x => x.StartsWith(input, StringComparison.CurrentCultureIgnoreCase));
+                if (m_currentSuggestion != null)
+                {
+                    m_currentText = m_currentSuggestion;
+                    m_selectionStart = input.Length;
+                    m_selectionLength = m_currentSuggestion.Length - input.Length;
+
+                    txtBasePath.Text = m_currentText;
+                    txtBasePath.Select(m_selectionStart, m_selectionLength);
+                }
+            }
+            m_currentInput = input;
+        }
+
+        private void UpdateFolderSuggestionValues()
+        {
+            var input = txtBasePath.Text;
+            
+            if (input.EndsWith(Path.DirectorySeparatorChar) && Directory.Exists(input))
+            {
+                m_folderSuggestionValues = Directory.GetDirectories(input);
             }
         }
     }
