@@ -233,6 +233,12 @@ namespace rg_gui
 
             m_ripGrepWrapper.Clear();
 
+            var startPath = txtBasePath.Text;
+            if (startPath.EndsWith(Path.DirectorySeparatorChar))
+            {
+                startPath = startPath.TrimEnd(Path.DirectorySeparatorChar);
+            }
+
             try
             {
                 int index = 0;
@@ -241,7 +247,7 @@ namespace rg_gui
                 {
                     var searchParameters = new SearchParameters
                     {
-                        StartPath = txtBasePath.Text,
+                        StartPath = startPath,
                         SearchString = searchTerm.Value,
                         IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
                         Recursive = chkRecursive.IsChecked ?? true,
