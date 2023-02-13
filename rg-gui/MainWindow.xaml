@@ -11,6 +11,7 @@
     <Grid Margin="5,5,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
@@ -31,20 +32,29 @@
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Grid.Column="0" Margin="0,0,5,5" Content="In Folder" VerticalContentAlignment="Center"/>
             <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,5" x:Name="txtBasePath" TextWrapping="NoWrap" VerticalContentAlignment="Center" TabIndex="0" TextChanged="txtBasePath_TextChanged"/>
-            <Button Grid.Row="0" Grid.Column="4" Margin="5,0,0,5" x:Name="btnBrowse" Content="Browse" Click="btnBrowse_Click"/>
+            <Button Grid.Row="0" Grid.Column="4" Margin="5,0,0,5" x:Name="btnBrowse" Content="Browse" Click="btnBrowse_Click" MinWidth="80" />
             <Button Grid.Row="0" Grid.Column="5" Grid.RowSpan="2" Margin="5,0,0,5" x:Name="btnStart" Content="Start" Click="btnStart_Click" MinWidth="80" TabIndex="4"/>
             <Label Grid.Row="1" Grid.Column="0" Margin="0,0,5,5" Content="Include Files" VerticalContentAlignment="Center"/>
             <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,5" x:Name="txtIncludeFiles" TextWrapping="NoWrap" VerticalContentAlignment="Center" TabIndex="1"/>
             <Label Grid.Row="1" Grid.Column="2" Margin="5,0,5,5" Content="Exclude Files" VerticalContentAlignment="Center"/>
             <TextBox Grid.Row="1" Grid.Column="3" Margin="0,0,0,5" x:Name="txtExcludeFiles" TextWrapping="NoWrap" VerticalContentAlignment="Center" TabIndex="2"/>
-            <CheckBox Grid.Row="1" Grid.Column="4" Margin="5,0,0,5" x:Name="chkRecursive" Content="Recursive" VerticalContentAlignment="Center"/>
             <Label Grid.Row="2" Grid.Column="0" Margin="0,0,5,5" Content="Containing Text" VerticalContentAlignment="Center"/>
             <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,5" x:Name="txtContainingText" TextWrapping="NoWrap" VerticalContentAlignment="Center" KeyDown="txtContainingText_OnKeyDown" TabIndex="3"/>
-            <CheckBox Grid.Row="2" Grid.Column="4" Margin="5,0,0,5" x:Name="chkCaseSensitive" Content="Case-sensitive" VerticalContentAlignment="Center"/>
             <Button Grid.Row="2" Grid.Column="5" Margin="5,0,0,5" x:Name="btnCancel" Content="Cancel" Click="btnCancel_Click" IsEnabled="False" TabIndex="5"/>
         </Grid>
 
         <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.Row="1" Grid.Column="0" Margin="0,0,0,5" x:Name="chkRecursive" Content="Recursive" VerticalContentAlignment="Center"/>
+            <CheckBox Grid.Row="1" Grid.Column="1" Margin="10,0,0,5" x:Name="chkCaseSensitive" Content="Case-sensitive" VerticalContentAlignment="Center"/>
+            <CheckBox Grid.Row="1" Grid.Column="2" Margin="10,0,0,5" x:Name="chkRegularExpression" Content="Regular Expression" VerticalContentAlignment="Center"/>
+        </Grid>
+        
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>

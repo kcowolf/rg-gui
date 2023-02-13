@@ -34,6 +34,7 @@ namespace rg_gui
 
         private const string DEFAULT_CASESENSITIVE = "false";
         private const string DEFAULT_RECURSIVE = "true";
+        private const string DEFAULT_REGULAREXPRESSION = "false";
 
         private const int MIN_SEARCH_INSTANCES = 1;
         private const int MAX_SEARCH_INSTANCES = 10;
@@ -123,6 +124,7 @@ namespace rg_gui
             config.AppSettings.Settings["ContainingText"].Value = txtContainingText.Text;
             config.AppSettings.Settings["CaseSensitive"].Value = (chkCaseSensitive.IsChecked ?? bool.Parse(DEFAULT_CASESENSITIVE)) ? "true" : "false";
             config.AppSettings.Settings["Recursive"].Value = (chkRecursive.IsChecked ?? bool.Parse(DEFAULT_RECURSIVE)) ? "true" : "false";
+            config.AppSettings.Settings["RegularExpression"].Value = (chkRegularExpression.IsChecked ?? bool.Parse(DEFAULT_REGULAREXPRESSION)) ? "true" : "false";
             config.Save();
 
             ConfigurationManager.RefreshSection("appSettings");
@@ -244,7 +246,8 @@ namespace rg_gui
                         IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
                         Recursive = chkRecursive.IsChecked ?? true,
                         IncludePatterns = txtIncludeFiles.Text,
-                        ExcludePatterns = txtExcludeFiles.Text
+                        ExcludePatterns = txtExcludeFiles.Text,
+                        RegularExpression = chkRegularExpression.IsChecked ?? false
                     };
 
                     FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());

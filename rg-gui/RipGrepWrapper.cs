@@ -33,6 +33,8 @@ namespace rg_gui
             public bool IgnoreCase { get; set; } = true;
 
             public bool Recursive { get; set; } = true;
+
+            public bool RegularExpression { get; set; } = true;
         }
 
         public class ResultLine
@@ -95,6 +97,11 @@ namespace rg_gui
             if (!searchParameters.Recursive)
             {
                 argsBuilder.Append("--max-depth=1 ");
+            }
+
+            if (!searchParameters.RegularExpression)
+            {
+                argsBuilder.Append("--fixed-strings ");
             }
 
             if (!string.IsNullOrWhiteSpace(searchParameters.IncludePatterns))
