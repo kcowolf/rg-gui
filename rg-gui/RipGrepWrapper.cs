@@ -106,14 +106,14 @@ namespace rg_gui
 
             if (!string.IsNullOrWhiteSpace(searchParameters.IncludePatterns))
             {
-                argsBuilder.Append("-g={");
+                argsBuilder.Append("--iglob={");
                 argsBuilder.AppendJoin(",", GetSearchPatterns(searchParameters.IncludePatterns));
                 argsBuilder.Append("} ");
             }
 
             if (searchParameters.ExcludePatterns.Any())
             {
-                argsBuilder.Append("-g=!{");
+                argsBuilder.Append("--iglob=!{");
                 argsBuilder.AppendJoin(",", GetSearchPatterns(searchParameters.ExcludePatterns));
                 argsBuilder.Append("} ");
             }
