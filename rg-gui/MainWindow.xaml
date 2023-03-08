@@ -14,7 +14,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <Grid Grid.Row="0" Margin="0,0,0,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -53,7 +53,7 @@
             <CheckBox Grid.Row="1" Grid.Column="1" Margin="10,0,0,5" x:Name="chkCaseSensitive" Content="Case-sensitive" VerticalContentAlignment="Center"/>
             <CheckBox Grid.Row="1" Grid.Column="2" Margin="10,0,0,5" x:Name="chkRegularExpression" Content="Regular Expression" VerticalContentAlignment="Center"/>
         </Grid>
-        
+
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -70,7 +70,13 @@
             <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding}" AutoGenerateColumns="False" GridLinesVisibility="None">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Line" Binding="{Binding Line, Mode=OneWay}"/>
-                    <DataGridTextColumn Header="Content" Binding="{Binding Content, Mode=OneWay}"/>
+                    <DataGridTemplateColumn Header="Content">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock local:TextBlockFormatter.Text="{Binding Path=Content, Mode=OneWay}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

@@ -118,6 +118,8 @@ namespace rg_gui
                 argsBuilder.Append("} ");
             }
 
+            argsBuilder.Append("--color always ");
+
             // Signal no more flags will be set.
             argsBuilder.Append("-- ");
 
@@ -143,8 +145,9 @@ namespace rg_gui
                             {
                                 var result = stdOut.Text.Split(fieldMatchSeparator, 3);
 
-                                var path = Path.GetDirectoryName(result[0]) ?? string.Empty;
-                                var filename = Path.GetFileName(result[0]) ?? string.Empty;
+                                var fullPath = RemoveAnsiColors(result[0]);
+                                var path = Path.GetDirectoryName(fullPath) ?? string.Empty;
+                                var filename = Path.GetFileName(fullPath) ?? string.Empty;
 
                                 if (!Results.ContainsKey((path, filename, index)))
                                 {
@@ -154,7 +157,7 @@ namespace rg_gui
 
                                 if (result.Length == 3)
                                 {
-                                    Results[(path, filename, index)].Add(new ResultLine(int.Parse(result[1]), result[2]));
+                                    Results[(path, filename, index)].Add(new ResultLine(int.Parse(RemoveAnsiColors(result[1])), result[2]));
                                 }
                             }
                             break;
@@ -168,9 +171,9 @@ namespace rg_gui
             }
         }
 
-        private readonly char[] PatternDelimiters = { ' ', ':', ';', ',' };
+        private static readonly char[] PatternDelimiters = { ' ', ':', ';', ',' };
 
-        private IEnumerable<string> GetSearchPatterns(string patternString)
+        private static IEnumerable<string> GetSearchPatterns(string patternString)
         {
             var searchPatterns = new List<string>();
             var splitPatternString = patternString.Split(PatternDelimiters, StringSplitOptions.RemoveEmptyEntries);
@@ -199,6 +202,11 @@ namespace rg_gui
             }
 
             return searchPatterns;
+        }
+
+        private static string RemoveAnsiColors(string source)
+        {
+            return Regex.Replace(source, @"\x1B\[[^@-~]*[@-~]", string.Empty);
         }
     }
 }
