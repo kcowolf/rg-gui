@@ -150,6 +150,7 @@ namespace rg_gui
                 if (!FileResultItems.Any(x => x.Path == result.path && x.Filename == result.filename))
                 {
                     FileResultItems.Add(new FileSearchResult(result.path, result.filename));
+                    txtFileListStatus.Text = $"Found {FileResultItems.Count} files.";
                 }
             });
         }
@@ -197,6 +198,8 @@ namespace rg_gui
                             }
                         }
                     }
+
+                    txtResultLineStatus.Text = $"{ResultLineItems.Count} lines matched.";
                 }
             }
         }

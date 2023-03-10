@@ -1,8 +1,4 @@
-﻿// TODO -- Add file/line result counts, display in UI
-// TODO -- Improve right-click support (only works if all files in the same folder.)
-// TODO -- Save splitter position.
-
-using CliWrap;
+﻿using CliWrap;
 using CliWrap.EventStream;
 using System;
 using System.Collections.Concurrent;
