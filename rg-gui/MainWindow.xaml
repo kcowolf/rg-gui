@@ -61,14 +61,14 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding}" AutoGenerateColumns="False" MouseDown="gridFileResults_MouseDown" SelectionChanged="gridFileResults_SelectionChanged" GridLinesVisibility="None">
+            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding}" AutoGenerateColumns="False" MouseDown="gridFileResults_MouseDown" SelectionChanged="gridFileResults_SelectionChanged" GridLinesVisibility="None" BorderThickness="1,1,1,0">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Filename" Binding="{Binding Filename, Mode=OneWay}"/>
                     <DataGridTextColumn Header="Path" Binding="{Binding Path, Mode=OneWay}"/>
                 </DataGrid.Columns>
             </DataGrid>
-            <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext"/>
-            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding}" AutoGenerateColumns="False" GridLinesVisibility="None">
+            <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" BorderThickness="0,1,0,0" BorderBrush="#FF688CAF"/>
+            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding}" AutoGenerateColumns="False" GridLinesVisibility="None" BorderThickness="1,1,1,0">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Line" Binding="{Binding Line, Mode=OneWay}"/>
                     <DataGridTemplateColumn Header="Content">
@@ -92,10 +92,10 @@
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem>
+            <StatusBarItem BorderThickness="1,1,0,1" BorderBrush="#FF688CAF">
                 <TextBlock x:Name="txtFileListStatus" TextAlignment="Left"/>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="1">
+            <StatusBarItem Grid.Column="1" BorderThickness="0,1,1,1" BorderBrush="#FF688CAF">
                 <TextBlock x:Name="txtResultLineStatus" TextAlignment="Right"/>
             </StatusBarItem>
         </StatusBar>
