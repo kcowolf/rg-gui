@@ -234,6 +234,10 @@ namespace rg_gui
             m_searchInstanceCount = searchTerms.Count;
             m_fileResults.Clear();
 
+            ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
+            txtFileListStatus.Text = string.Empty;
+            txtResultLineStatus.Text = string.Empty;
+
             m_ripGrepWrapper.Clear();
 
             var startPath = txtBasePath.Text;
