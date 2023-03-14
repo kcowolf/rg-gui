@@ -141,19 +141,27 @@ namespace rg_gui
                             {
                                 var result = stdOut.Text.Split(fieldMatchSeparator, 3);
 
-                                var fullPath = RemoveAnsiColors(result[0]);
-                                var path = Path.GetDirectoryName(fullPath) ?? string.Empty;
-                                var filename = Path.GetFileName(fullPath) ?? string.Empty;
-
-                                if (!Results.ContainsKey((path, filename, index)))
+                                if (result.Length == 3 &&
+                                    !string.IsNullOrWhiteSpace(result[0]) &&
+                                    !string.IsNullOrWhiteSpace(result[1]) &&
+                                    !string.IsNullOrWhiteSpace(result[2]) &&
+                                    int.TryParse(RemoveAnsiColors(result[1]), out int lineNumber)
+                                    )
                                 {
-                                    Results.GetOrAdd((path, filename, index), new List<ResultLine>());
-                                    RaiseFileFound(path, filename, index);
-                                }
+                                    var fullPath = RemoveAnsiColors(result[0]);
+                                    var path = Path.GetDirectoryName(fullPath);
+                                    var filename = Path.GetFileName(fullPath);
 
-                                if (result.Length == 3)
-                                {
-                                    Results[(path, filename, index)].Add(new ResultLine(int.Parse(RemoveAnsiColors(result[1])), result[2]));
+                                    if (!string.IsNullOrWhiteSpace(path) && !string.IsNullOrWhiteSpace(filename))
+                                    {
+                                        if (!Results.ContainsKey((path, filename, index)))
+                                        {
+                                            Results.GetOrAdd((path, filename, index), new List<ResultLine>());
+                                            RaiseFileFound(path, filename, index);
+                                        }
+
+                                        Results[(path, filename, index)].Add(new ResultLine(lineNumber, result[2]));
+                                    }
                                 }
                             }
                             break;
