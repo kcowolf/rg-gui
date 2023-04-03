@@ -10,13 +10,6 @@ RipGrep must be installed on your computer.  You can download it from [here](htt
 
 Download the latest release of rg-gui from the [Releases page](https://github.com/kcowolf/rg-gui/releases).  Unzip it to a convenient location such as `C:\rg-gui`.
 
-In rg-gui.dll.config, specify the location of the RipGrep executable.
-
-```xml
-<add key="RipGrepPath" value="C:\ripgrep-13.0.0-x86_64-pc-windows-msvc\rg.exe"/>
-```
-
-
 ## Usage
 
 Select a folder using the Browse button or by typing the path into the "In Folder" box.

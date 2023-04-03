@@ -25,4 +25,12 @@
     <Resource Include="icon.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ContentWithTargetPath Include="..\depends\ripgrep\rg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>rg.exe</TargetPath>
+    </ContentWithTargetPath>
+    <None Include="..\depends\ripgrep\rg.exe" />
+  </ItemGroup>
+
 </Project>

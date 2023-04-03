@@ -90,12 +90,12 @@ namespace rg_gui
         {
             InitializeComponent();
 
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            Left = double.TryParse(config.AppSettings.Settings["MainWindowLeft"].Value, out var left) ? left : DEFAULT_MAINWINDOW_LEFT;
-            Top = double.TryParse(config.AppSettings.Settings["MainWindowTop"].Value, out var top) ? top : DEFAULT_MAINWINDOW_TOP;
-            Width = double.TryParse(config.AppSettings.Settings["MainWindowWidth"].Value, out var width) ? width : DEFAULT_MAINWINDOW_WIDTH;
-            Height = double.TryParse(config.AppSettings.Settings["MainWindowHeight"].Value, out var height) ? height : DEFAULT_MAINWINDOW_HEIGHT;
-            WindowState = int.TryParse(config.AppSettings.Settings["MainWindowState"].Value, out var windowState) ? WindowState : DEFAULT_MAINWINDOW_STATE;
+            var config = GetConfiguration();
+            Left = double.TryParse(config.AppSettings.Settings["MainWindowLeft"]?.Value, out var left) ? left : DEFAULT_MAINWINDOW_LEFT;
+            Top = double.TryParse(config.AppSettings.Settings["MainWindowTop"]?.Value, out var top) ? top : DEFAULT_MAINWINDOW_TOP;
+            Width = double.TryParse(config.AppSettings.Settings["MainWindowWidth"]?.Value, out var width) ? width : DEFAULT_MAINWINDOW_WIDTH;
+            Height = double.TryParse(config.AppSettings.Settings["MainWindowHeight"]?.Value, out var height) ? height : DEFAULT_MAINWINDOW_HEIGHT;
+            WindowState = int.TryParse(config.AppSettings.Settings["MainWindowState"]?.Value, out var windowState) ? WindowState : DEFAULT_MAINWINDOW_STATE;
 
             txtBasePath.Text = config.AppSettings.Settings["BasePath"]?.Value ?? DEFAULT_BASEPATH;
             txtIncludeFiles.Text = config.AppSettings.Settings["IncludeFiles"]?.Value ?? DEFAULT_INCLUDEFILES;
@@ -114,7 +114,14 @@ namespace rg_gui
                 cmbEncoding.SelectedIndex = 0;
             }
 
-            m_ripGrepWrapper = new RipGrepWrapper(config.AppSettings.Settings["RipGrepPath"]?.Value ?? throw new Exception("RipGrepPath not set."));
+            var ripgrepPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? string.Empty, "rg.exe");
+            if (!File.Exists(ripgrepPath))
+            {
+                MessageBox.Show("rg.exe not found in installation path.", "Error");
+                throw new Exception("rg.exe not found in installation path.");
+            }
+
+            m_ripGrepWrapper = new RipGrepWrapper(ripgrepPath);
 
             m_maxSearchTerms = int.TryParse(config.AppSettings.Settings["MaxSearchTerms"]?.Value, out var maxSearchTerms) ? maxSearchTerms : DEFAULT_MAXSEARCHTERMS;
 
@@ -125,24 +132,48 @@ namespace rg_gui
             m_ripGrepWrapper.FileFound += OnFileAdded;
         }
 
+        private static Configuration GetConfiguration()
+        {
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var configPath = $"{appData}\\kcowolf\\rg-gui\\rg-gui.exe.config";
+
+            var fileMap = new ExeConfigurationFileMap
+            {
+                ExeConfigFilename = configPath
+            };
+            return ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+        }
+
+        private static void SetConfigValue(Configuration config, string key, string value)
+        {
+            if (config.AppSettings.Settings[key] != null)
+            {
+                config.AppSettings.Settings[key].Value = value;
+            }
+            else
+            {
+                config.AppSettings.Settings.Add(key, value);
+            }
+        }
+
         private void OnClosing(object? sender, EventArgs e)
         {
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["MainWindowLeft"].Value = Left.ToString();
-            config.AppSettings.Settings["MainWindowTop"].Value = Top.ToString();
-            config.AppSettings.Settings["MainWindowWidth"].Value = Width.ToString();
-            config.AppSettings.Settings["MainWindowHeight"].Value = Height.ToString();
-            config.AppSettings.Settings["MainWindowState"].Value = ((int)WindowState).ToString();
+            var config = GetConfiguration();
+            SetConfigValue(config, "MainWindowLeft", Left.ToString());
+            SetConfigValue(config, "MainWindowTop", Top.ToString());
+            SetConfigValue(config, "MainWindowWidth", Width.ToString());
+            SetConfigValue(config, "MainWindowHeight", Height.ToString());
+            SetConfigValue(config, "MainWindowState", ((int)WindowState).ToString());
 
-            config.AppSettings.Settings["BasePath"].Value = txtBasePath.Text;
-            config.AppSettings.Settings["IncludeFiles"].Value = txtIncludeFiles.Text;
-            config.AppSettings.Settings["ExcludeFiles"].Value = txtExcludeFiles.Text;
-            config.AppSettings.Settings["ContainingText"].Value = txtContainingText.Text;
-            config.AppSettings.Settings["CaseSensitive"].Value = (chkCaseSensitive.IsChecked ?? bool.Parse(DEFAULT_CASESENSITIVE)) ? "true" : "false";
-            config.AppSettings.Settings["Recursive"].Value = (chkRecursive.IsChecked ?? bool.Parse(DEFAULT_RECURSIVE)) ? "true" : "false";
-            config.AppSettings.Settings["RegularExpression"].Value = (chkRegularExpression.IsChecked ?? bool.Parse(DEFAULT_REGULAREXPRESSION)) ? "true" : "false";
+            SetConfigValue(config, "BasePath", txtBasePath.Text);
+            SetConfigValue(config, "IncludeFiles", txtIncludeFiles.Text);
+            SetConfigValue(config, "ExcludeFiles", txtExcludeFiles.Text);
+            SetConfigValue(config, "ContainingText", txtContainingText.Text);
+            SetConfigValue(config, "CaseSensitive", (chkCaseSensitive.IsChecked ?? bool.Parse(DEFAULT_CASESENSITIVE)) ? "true" : "false");
+            SetConfigValue(config, "Recursive", (chkRecursive.IsChecked ?? bool.Parse(DEFAULT_RECURSIVE)) ? "true" : "false");
+            SetConfigValue(config, "RegularExpression", (chkRegularExpression.IsChecked ?? bool.Parse(DEFAULT_REGULAREXPRESSION)) ? "true" : "false");
 
-            config.AppSettings.Settings["FileEncoding"].Value = ((ComboBoxItem)cmbEncoding.SelectedItem).Name;
+            SetConfigValue(config, "FileEncoding", ((ComboBoxItem)cmbEncoding.SelectedItem).Name);
             config.Save();
 
             ConfigurationManager.RefreshSection("appSettings");
