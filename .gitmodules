@@ -1,0 +1,4 @@
+[submodule "depends"]
+	path = depends
+	url = https://github.com/kcowolf/rg-gui-depends.git
+	branch = master
