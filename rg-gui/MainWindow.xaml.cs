@@ -36,6 +36,8 @@ namespace rg_gui
         private const string DEFAULT_RECURSIVE = "true";
         private const string DEFAULT_REGULAREXPRESSION = "false";
 
+        private const string DEFAULT_FILEENCODING = "Auto";
+
         private const int MIN_SEARCH_INSTANCES = 1;
         private const int MAX_SEARCH_INSTANCES = 10;
 
@@ -100,6 +102,16 @@ namespace rg_gui
             chkCaseSensitive.IsChecked = bool.Parse(config.AppSettings.Settings["CaseSensitive"]?.Value ?? DEFAULT_CASESENSITIVE);
             chkRecursive.IsChecked = bool.Parse(config.AppSettings.Settings["Recursive"]?.Value ?? DEFAULT_RECURSIVE);
 
+            var fileEncoding = cmbEncoding.FindName(config.AppSettings.Settings["FileEncoding"]?.Value ?? DEFAULT_FILEENCODING);
+            if (fileEncoding != null)
+            {
+                cmbEncoding.SelectedItem = fileEncoding;
+            }
+            else
+            {
+                cmbEncoding.SelectedIndex = 0;
+            }
+
             m_ripGrepWrapper = new RipGrepWrapper(config.AppSettings.Settings["RipGrepPath"]?.Value ?? throw new Exception("RipGrepPath not set."));
 
             DataContext = m_ripGrepWrapper;
@@ -125,6 +137,8 @@ namespace rg_gui
             config.AppSettings.Settings["CaseSensitive"].Value = (chkCaseSensitive.IsChecked ?? bool.Parse(DEFAULT_CASESENSITIVE)) ? "true" : "false";
             config.AppSettings.Settings["Recursive"].Value = (chkRecursive.IsChecked ?? bool.Parse(DEFAULT_RECURSIVE)) ? "true" : "false";
             config.AppSettings.Settings["RegularExpression"].Value = (chkRegularExpression.IsChecked ?? bool.Parse(DEFAULT_REGULAREXPRESSION)) ? "true" : "false";
+
+            config.AppSettings.Settings["FileEncoding"].Value = ((ComboBoxItem)cmbEncoding.SelectedItem).Name;
             config.Save();
 
             ConfigurationManager.RefreshSection("appSettings");
@@ -260,7 +274,8 @@ namespace rg_gui
                         Recursive = chkRecursive.IsChecked ?? true,
                         IncludePatterns = txtIncludeFiles.Text,
                         ExcludePatterns = txtExcludeFiles.Text,
-                        RegularExpression = chkRegularExpression.IsChecked ?? false
+                        RegularExpression = chkRegularExpression.IsChecked ?? false,
+                        Encoding = (FileEncoding)cmbEncoding.SelectedIndex
                     };
 
                     FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());

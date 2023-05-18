@@ -14,6 +14,12 @@ namespace rg_gui
 {
     public class RipGrepWrapper
     {
+        public enum FileEncoding
+        {
+            Auto,
+            GBK
+        }
+
         public class SearchParameters
         {
             public string StartPath { get; set; } = string.Empty;
@@ -31,6 +37,8 @@ namespace rg_gui
             public bool Recursive { get; set; } = true;
 
             public bool RegularExpression { get; set; } = true;
+
+            public FileEncoding Encoding { get; set; } = FileEncoding.Auto;
         }
 
         public class ResultLine
@@ -116,6 +124,11 @@ namespace rg_gui
 
             argsBuilder.Append("--color always ");
 
+            if (searchParameters.Encoding != FileEncoding.Auto)
+            {
+                argsBuilder.Append($"-E {EncodingTypes[searchParameters.Encoding]} ");
+            }
+
             // Signal no more flags will be set.
             argsBuilder.Append("-- ");
 
@@ -133,7 +146,7 @@ namespace rg_gui
             
             try
             {
-                await foreach (var cmdEvent in cmd.ListenAsync(cancellationToken))
+                await foreach (var cmdEvent in cmd.ListenAsync(Encoding.UTF8, cancellationToken))
                 {
                     switch (cmdEvent)
                     {
@@ -176,6 +189,12 @@ namespace rg_gui
         }
 
         private static readonly char[] PatternDelimiters = { ' ', ':', ';', ',' };
+
+        private static readonly Dictionary<FileEncoding, string> EncodingTypes = new()
+        {
+            { FileEncoding.Auto, string.Empty },
+            { FileEncoding.GBK, "GBK" },
+        };
 
         private static IEnumerable<string> GetSearchPatterns(string patternString)
         {

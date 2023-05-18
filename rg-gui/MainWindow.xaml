@@ -49,10 +49,17 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <CheckBox Grid.Row="1" Grid.Column="0" Margin="0,0,0,5" x:Name="chkRecursive" Content="Recursive" VerticalContentAlignment="Center"/>
-            <CheckBox Grid.Row="1" Grid.Column="1" Margin="10,0,0,5" x:Name="chkCaseSensitive" Content="Case-sensitive" VerticalContentAlignment="Center"/>
-            <CheckBox Grid.Row="1" Grid.Column="2" Margin="10,0,0,5" x:Name="chkRegularExpression" Content="Regular Expression" VerticalContentAlignment="Center"/>
+            <CheckBox Grid.Row="1" Grid.Column="1" Margin="15,0,0,5" x:Name="chkCaseSensitive" Content="Case-sensitive" VerticalContentAlignment="Center"/>
+            <CheckBox Grid.Row="1" Grid.Column="2" Margin="15,0,0,5" x:Name="chkRegularExpression" Content="Regular Expression" VerticalContentAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="3" Margin="15,-2,0,5" Text="File Encoding:" VerticalAlignment="Center"/>
+            <ComboBox Grid.Row="1" Grid.Column="4" Margin="5,0,0,5" x:Name="cmbEncoding" VerticalAlignment="Center">
+                <ComboBoxItem x:Name="Auto" Content="Auto"/>
+                <ComboBoxItem x:Name="GBK" Content="GBK"/>
+            </ComboBox>
         </Grid>
 
         <Grid Grid.Row="2">
