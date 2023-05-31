@@ -4,6 +4,7 @@ using Peter;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -240,6 +241,7 @@ namespace rg_gui
                 return;
             }
 
+            var stopwatch = Stopwatch.StartNew();
             btnStart.IsEnabled = false;
             btnCancel.IsEnabled = true;
             var cancellationTokenSource = new CancellationTokenSource();
@@ -295,6 +297,9 @@ namespace rg_gui
                 m_cancellationTokenSource = null;
                 cancellationTokenSource.Cancel();
             }
+
+            stopwatch.Stop();
+            txtFileListStatus.Text = $"Found {FileResultItems.Count} files.  Took {stopwatch.Elapsed.TotalSeconds:0.00} seconds.";
         }
 
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
