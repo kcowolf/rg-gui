@@ -39,8 +39,7 @@ namespace rg_gui
 
         private const string DEFAULT_FILEENCODING = "Auto";
 
-        private const int MIN_SEARCH_INSTANCES = 1;
-        private const int MAX_SEARCH_INSTANCES = 10;
+        private const int DEFAULT_MAXSEARCHTERMS = 10;
 
         private string m_currentInput = string.Empty;
         private string? m_currentSuggestion = string.Empty;
@@ -48,6 +47,8 @@ namespace rg_gui
         private int m_selectionStart;
         private int m_selectionLength;
         private IEnumerable<string> m_folderSuggestionValues = Enumerable.Empty<string>();
+
+        private readonly int m_maxSearchTerms;
 
         public class FileSearchResult
         {
@@ -114,6 +115,8 @@ namespace rg_gui
             }
 
             m_ripGrepWrapper = new RipGrepWrapper(config.AppSettings.Settings["RipGrepPath"]?.Value ?? throw new Exception("RipGrepPath not set."));
+
+            m_maxSearchTerms = int.TryParse(config.AppSettings.Settings["MaxSearchTerms"]?.Value, out var maxSearchTerms) ? maxSearchTerms : DEFAULT_MAXSEARCHTERMS;
 
             DataContext = m_ripGrepWrapper;
             gridFileResults.DataContext = FileResultItems;
@@ -236,8 +239,14 @@ namespace rg_gui
 
             // Based on https://stackoverflow.com/questions/52194058/regex-with-escaped-double-quotes
             var searchTerms = Regex.Matches(txtContainingText.Text, @"""[^""\\]*(?:\\.[^""\\]*)*""|([^\s])+|[^\s""]+");
-            if (searchTerms.Count < MIN_SEARCH_INSTANCES || searchTerms.Count > MAX_SEARCH_INSTANCES)
+            if (searchTerms.Count < 1)
             {
+                return;
+            }
+            
+            if (searchTerms.Count > m_maxSearchTerms)
+            {
+                MessageBox.Show($"Search text contains more than {m_maxSearchTerms} terms.");
                 return;
             }
 
