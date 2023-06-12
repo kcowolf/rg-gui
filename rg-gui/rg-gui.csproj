@@ -30,7 +30,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>rg.exe</TargetPath>
     </ContentWithTargetPath>
-    <None Include="..\depends\ripgrep\rg.exe" />
   </ItemGroup>
 
 </Project>
