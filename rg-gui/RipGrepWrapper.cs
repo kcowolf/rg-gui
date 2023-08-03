@@ -20,6 +20,15 @@ namespace rg_gui
             GBK
         }
 
+        public enum MaxFileSizeUnit
+        {
+            None,
+            B,
+            K,
+            M,
+            G
+        }
+
         public class SearchParameters
         {
             public string StartPath { get; set; } = string.Empty;
@@ -39,6 +48,10 @@ namespace rg_gui
             public bool RegularExpression { get; set; } = true;
 
             public FileEncoding Encoding { get; set; } = FileEncoding.Auto;
+
+            public int MaxFileSize { get; set; }
+
+            public MaxFileSizeUnit MaxFileSizeUnit { get; set; } = MaxFileSizeUnit.None;
         }
 
         public class ResultLine
@@ -127,6 +140,11 @@ namespace rg_gui
             if (searchParameters.Encoding != FileEncoding.Auto)
             {
                 argsBuilder.Append($"-E {EncodingTypes[searchParameters.Encoding]} ");
+            }
+
+            if (searchParameters.MaxFileSizeUnit != MaxFileSizeUnit.None)
+            {
+                argsBuilder.Append($"--max-filesize {searchParameters.MaxFileSize}{(searchParameters.MaxFileSizeUnit != MaxFileSizeUnit.B ? searchParameters.MaxFileSizeUnit : string.Empty)} ");
             }
 
             // Signal no more flags will be set.

@@ -39,6 +39,9 @@ namespace rg_gui
 
         private const string DEFAULT_FILEENCODING = "Auto";
 
+        private const int DEFAULT_MAXFILESIZE = 0;
+        private const string DEFAULT_MAXFILESIZEUNIT = "None";
+
         private const int DEFAULT_MAXSEARCHTERMS = 10;
 
         private string m_currentInput = string.Empty;
@@ -114,6 +117,17 @@ namespace rg_gui
                 cmbEncoding.SelectedIndex = 0;
             }
 
+            txtMaxFileSize.Text = (int.TryParse(config.AppSettings.Settings["MaxFileSize"].Value, out var maxFileSize) ? maxFileSize : DEFAULT_MAXFILESIZE).ToString();
+            var maxFileSizeUnit = cmbFileSizeUnit.FindName(config.AppSettings.Settings["MaxFileSizeUnit"]?.Value ?? DEFAULT_MAXFILESIZEUNIT);
+            if (maxFileSizeUnit != null)
+            {
+                cmbFileSizeUnit.SelectedItem = maxFileSizeUnit;
+            }
+            else
+            {
+                cmbFileSizeUnit.SelectedIndex = 0;
+            }
+
             m_ripGrepWrapper = new RipGrepWrapper(config.AppSettings.Settings["RipGrepPath"]?.Value ?? throw new Exception("RipGrepPath not set."));
 
             m_maxSearchTerms = int.TryParse(config.AppSettings.Settings["MaxSearchTerms"]?.Value, out var maxSearchTerms) ? maxSearchTerms : DEFAULT_MAXSEARCHTERMS;
@@ -143,6 +157,8 @@ namespace rg_gui
             config.AppSettings.Settings["RegularExpression"].Value = (chkRegularExpression.IsChecked ?? bool.Parse(DEFAULT_REGULAREXPRESSION)) ? "true" : "false";
 
             config.AppSettings.Settings["FileEncoding"].Value = ((ComboBoxItem)cmbEncoding.SelectedItem).Name;
+            config.AppSettings.Settings["MaxFileSize"].Value = txtMaxFileSize.Text;
+            config.AppSettings.Settings["MaxFileSizeUnit"].Value = ((ComboBoxItem)cmbFileSizeUnit.SelectedItem).Name;
             config.Save();
 
             ConfigurationManager.RefreshSection("appSettings");
@@ -286,7 +302,9 @@ namespace rg_gui
                         IncludePatterns = txtIncludeFiles.Text,
                         ExcludePatterns = txtExcludeFiles.Text,
                         RegularExpression = chkRegularExpression.IsChecked ?? false,
-                        Encoding = (FileEncoding)cmbEncoding.SelectedIndex
+                        Encoding = (FileEncoding)cmbEncoding.SelectedIndex,
+                        MaxFileSize = int.Parse(txtMaxFileSize.Text),
+                        MaxFileSizeUnit = (MaxFileSizeUnit)cmbFileSizeUnit.SelectedIndex,
                     };
 
                     FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());
@@ -374,6 +392,17 @@ namespace rg_gui
             {
                 m_folderSuggestionValues = Directory.GetDirectories(input);
             }
+        }
+
+        private void txtMaxFileSize_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var input = txtMaxFileSize.Text;
+            txtMaxFileSize.Text = new string(input.Where(c => char.IsDigit(c)).ToArray());
+        }
+
+        private void cmbFileSizeUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            txtMaxFileSize.IsEnabled = (cmbFileSizeUnit.SelectedIndex != 0);
         }
     }
 }
