@@ -1,0 +1,125 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Theme originally based on https://github.com/Verta-IT/ThemeWPF/blob/main/Source/VertaIT.WPF.Theme/Themes/DarkTheme.xaml -->
+    
+    <Color x:Key="AColour.Button.Static.Background"                          R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.Button.Static.Border"                              R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.Button.MouseOver.Background"                       R="84" G="84" B="92" A="255"/>
+    <Color x:Key="AColour.Button.MouseOver.Border"                           R="84" G="84" B="92" A="255"/>
+    <Color x:Key="AColour.Button.Pressed.Background"                         R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.Button.Pressed.Border"                             R="28" G="151" B="234" A="255"/>
+    <Color x:Key="AColour.Button.Disabled.Background"                        R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.Button.Disabled.Border"                            R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.Button.Static.Foreground"                          R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.Button.Disabled.Foreground"                        R="109" G="109" B="109" A="255"/>
+    <Color x:Key="AColour.Button.Defaulted.Background"                       R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.Button.Defaulted.Border"                           R="67" G="67" B="70" A="255"/>
+
+    <Color x:Key="AColour.ComboBox.Static.Background"                        R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.ComboBox.Static.Border"                            R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ComboBox.Static.Foreground"                        R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.ComboBox.MouseOver.Glyph"                          R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.ComboBox.MouseOver.Background"                     R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ComboBox.MouseOver.Border"                         R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.ComboBox.Pressed.Glyph"                            R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.ComboBox.Pressed.Background"                       R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ComboBox.Pressed.Border"                           R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.ComboBox.Disabled.Glyph"                           R="109" G="109" B="109" A="255"/>
+    <Color x:Key="AColour.ComboBox.Disabled.Background"                      R="102" G="102" B="102" A="255"/>
+    <Color x:Key="AColour.ComboBox.Disabled.Border"                          R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ComboBox.Static.Glyph"                             R="229" G="229" B="229" A="255"/>
+
+    <Color x:Key="AColour.ComboBox.Popup.Static.Background"                  R="27" G="27" B="28" A="255"/>
+    <Color x:Key="AColour.ComboBox.Popup.Static.Border"                      R="51" G="51" B="55" A="255"/>
+
+    <Color x:Key="AColour.ComboBoxItem.ItemView.Hover.Background"            R="62" G="62" B="64" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.Hover.Border"                R="51" G="51" B="55" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.Selected.Background"         R="0" G="89" B="149" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.Selected.Border"             R="51" G="51" B="55" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.SelectedHover.Background"    R="0" G="89" B="149" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.SelectedHover.Border"        R="51" G="51" B="55" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.SelectedNoFocus.Background"  R="0" G="89" B="149" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.SelectedNoFocus.Border"      R="51" G="51" B="55" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.Focus.Border"                R="51" G="51" B="55" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.HoverFocus.Background"       R="62" G="62" B="64" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.HoverFocus.Border"           R="51" G="51" B="55" A="255"/>
+    <Color x:Key="AColour.ComboBoxItem.ItemView.Disabled.Foreground"         R="109" G="109" B="109" A="255"/>
+
+    <Color x:Key="AColour.DataGrid.Static.Background"                        R="37" G="37" B="38" A="255"/>
+    <Color x:Key="AColour.DataGrid.Static.Border"                            R="63" G="63" B="70" A="255"/>
+    <Color x:Key="AColour.DataGrid.Static.Foreground"                        R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.DataGrid.HorizontalSeparatorBrush"                 R="63" G="63" B="70" A="255"/>
+    <Color x:Key="AColour.DataGrid.VerticalSeparatorBrush"                   R="63" G="63" B="70" A="255"/>
+    <Color x:Key="AColour.DataGrid.HeaderItem.Static.Background"             R="45" G="45" B="48" A="255"/>
+    <Color x:Key="AColour.DataGrid.HeaderItem.Static.Foreground"             R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.DataGrid.HeaderItem.MouseOver.Background"          R="62" G="62" B="64" A="255"/>
+    <Color x:Key="AColour.DataGrid.HeaderItem.MouseDown.Background"          R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.DataGrid.RowHeader.Static.Background"              R="51" G="51" B="55" A="255"/>
+    <Color x:Key="AColour.DataGrid.Row.Selected.Background"                  R="0" G="89" B="149" A="255"/>
+    <Color x:Key="AColour.DataGrid.CellItem.Static.Background"               R="51" G="51" B="55" A="255"/>
+    <Color x:Key="AColour.DataGrid.CellItem.MouseOver.Background"            R="51" G="51" B="55" A="255"/>
+
+    <Color x:Key="AColour.DataGrid.TextHighlightBackground"                  R="0" G="139" B="139" A="255" />
+
+    <Color x:Key="AColour.FocusVisual.Border"                                R="0" G="122" B="204" A="255"/>
+
+    <Color x:Key="AColour.GridSplitter.Static.Border"                        R="63" G="63" B="70" A="255" />
+
+    <Color x:Key="AColour.Label.Static.Foreground"                           R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.Label.Disabled.Foreground"                         R="109" G="109" B="109" A="255"/>
+
+    <Color x:Key="AColour.OptionMark.Static.Background"                      R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.OptionMark.Static.Border"                          R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.OptionMark.Static.Foreground"                      R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.OptionMark.MouseOver.Background"                   R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.OptionMark.MouseOver.Border"                       R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.OptionMark.Disabled.Background"                    R="109" G="109" B="109" A="255"/>
+    <Color x:Key="AColour.OptionMark.Disabled.Border"                        R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.OptionMark.Pressed.Background"                     R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.OptionMark.Pressed.Border"                         R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.OptionMark.Static.Glyph"                           R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.OptionMark.Pressed.Glyph"                          R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.OptionMark.MouseOver.Glyph"                        R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.OptionMark.Disabled.Glyph"                         R="109" G="109" B="109" A="255"/>
+    <Color x:Key="AColour.OptionMark.Focus.Border"                           R="0" G="122" B="204" A="255"/>
+
+    <Color x:Key="AColour.ScrollBar.Static.Background"                       R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Static.Border"                           R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ScrollBarButton.Static.Border"                     R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Pressed.Glyph"                           R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.ScrollBar.MouseOver.Glyph"                         R="0" G="120" B="215" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Disabled.Glyph"                          R="102" G="102" B="102" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Static.Glyph"                            R="104" G="104" B="104" A="255"/>
+    <Color x:Key="AColour.ScrollBar.MouseOver.Background"                    R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.ScrollBar.MouseOver.Border"                        R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Pressed.Background"                      R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Pressed.Border"                          R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Disabled.Background"                     R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Disabled.Border"                         R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.ScrollBar.MouseOver.Thumb"                         R="158" G="158" B="158" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Pressed.Thumb"                           R="239" G="239" B="239" A="255"/>
+    <Color x:Key="AColour.ScrollBar.Static.Thumb"                            R="104" G="104" B="104" A="255"/>
+
+    <Color x:Key="AColour.StatusBar.Static.Background"                       R="37" G="37" B="38" A="255"/>
+    <Color x:Key="AColour.StatusBar.Static.Border"                           R="63" G="63" B="70" A="255"/>
+    <Color x:Key="AColour.StatusBar.Static.Foreground"                       R="229" G="229" B="229" A="255"/>
+
+    <Color x:Key="AColour.TextBox.Static.Background"                         R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.TextBox.Static.Border"                             R="67" G="67" B="67" A="255"/>
+    <Color x:Key="AColour.TextBox.Static.Foreground"                         R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.TextBox.Static.Caret"                              R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.TextBox.Disabled.Background"                       R="55" G="55" B="55" A="255"/>
+    <Color x:Key="AColour.TextBox.Disabled.Border"                           R="67" G="67" B="70" A="255"/>
+    <Color x:Key="AColour.TextBox.Disabled.Foreground"                       R="109" G="109" B="109" A="255"/>
+    <Color x:Key="AColour.TextBox.MouseOver.Border"                          R="0" G="122" B="204" A="255"/>
+    <Color x:Key="AColour.TextBox.Focus.Border"                              R="50" G="150" B="250" A="255"/>
+    <Color x:Key="AColour.TextBox.Selection.Inactive"                        R="102" G="102" B="102" A="255"/>
+    <Color x:Key="AColour.TextBox.Selection"                                 R="0" G="120" B="215" A="255"/>
+
+    <Color x:Key="AColour.Window.Static.Background"                          R="45" G="45" B="48" A="255"/>
+    <Color x:Key="AColour.Window.Static.Border"                              R="45" G="45" B="48" A="255"/>
+    <Color x:Key="AColour.Window.Static.Foreground"                          R="229" G="229" B="229" A="255"/>
+    <Color x:Key="AColour.Window.Static.Title.Background"                    R="45" G="45" B="48" A="255"/>
+    <Color x:Key="AColour.Window.Static.Title.Button.Glyph"                  R="229" G="229" B="229" A="255"/>
+</ResourceDictionary>

@@ -1,4 +1,5 @@
 ﻿using ConcurrentCollections;
+using FramePFX.Themes;
 using Ookii.Dialogs.Wpf;
 using Peter;
 using System;
@@ -52,6 +53,9 @@ namespace rg_gui
         private IEnumerable<string> m_folderSuggestionValues = Enumerable.Empty<string>();
 
         private readonly int m_maxSearchTerms;
+
+        private const string DEFAULT_THEME = "Light";
+        private ThemeType m_currentTheme = Enum.Parse<ThemeType>(DEFAULT_THEME);
 
         public class FileSearchResult
         {
@@ -128,6 +132,20 @@ namespace rg_gui
                 cmbFileSizeUnit.SelectedIndex = 0;
             }
 
+            var themeName = config.AppSettings.Settings["Theme"]?.Value ?? DEFAULT_THEME;
+            if (Enum.TryParse<ThemeType>(themeName, true, out var theme))
+            {
+                m_currentTheme = theme;
+            }
+
+            try
+            {
+                ThemesController.SetTheme(m_currentTheme);
+            }
+            catch (Exception)
+            {
+            }
+
             m_ripGrepWrapper = new RipGrepWrapper(config.AppSettings.Settings["RipGrepPath"]?.Value ?? throw new Exception("RipGrepPath not set."));
 
             m_maxSearchTerms = int.TryParse(config.AppSettings.Settings["MaxSearchTerms"]?.Value, out var maxSearchTerms) ? maxSearchTerms : DEFAULT_MAXSEARCHTERMS;
@@ -159,6 +177,7 @@ namespace rg_gui
             config.AppSettings.Settings["FileEncoding"].Value = ((ComboBoxItem)cmbEncoding.SelectedItem).Name;
             config.AppSettings.Settings["MaxFileSize"].Value = txtMaxFileSize.Text;
             config.AppSettings.Settings["MaxFileSizeUnit"].Value = ((ComboBoxItem)cmbFileSizeUnit.SelectedItem).Name;
+            config.AppSettings.Settings["Theme"].Value = m_currentTheme.ToString();
             config.Save();
 
             ConfigurationManager.RefreshSection("appSettings");
@@ -169,7 +188,7 @@ namespace rg_gui
             m_fileResults.Add((result.path, result.filename, result.index));
 
             // If result not present in all lists, return.
-            for(int i = 0; i < m_searchInstanceCount; i++)
+            for (int i = 0; i < m_searchInstanceCount; i++)
             {
                 if (!m_fileResults.Contains((result.path, result.filename, i)))
                 {
@@ -259,7 +278,7 @@ namespace rg_gui
             {
                 return;
             }
-            
+
             if (searchTerms.Count > m_maxSearchTerms)
             {
                 MessageBox.Show($"Search text contains more than {m_maxSearchTerms} terms.");
@@ -387,7 +406,7 @@ namespace rg_gui
         private void UpdateFolderSuggestionValues()
         {
             var input = txtBasePath.Text;
-            
+
             if (input.EndsWith(Path.DirectorySeparatorChar) && Directory.Exists(input))
             {
                 m_folderSuggestionValues = Directory.GetDirectories(input);
