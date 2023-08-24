@@ -34,9 +34,9 @@ namespace rg_gui
         private const string DEFAULT_EXCLUDEFILES = "";
         private const string DEFAULT_CONTAININGTEXT = "";
 
-        private const string DEFAULT_CASESENSITIVE = "false";
-        private const string DEFAULT_RECURSIVE = "true";
-        private const string DEFAULT_REGULAREXPRESSION = "false";
+        private const bool DEFAULT_CASESENSITIVE = false;
+        private const bool DEFAULT_RECURSIVE = true;
+        private const bool DEFAULT_REGULAREXPRESSION = false;
 
         private const string DEFAULT_FILEENCODING = "Auto";
 
@@ -54,8 +54,8 @@ namespace rg_gui
 
         private readonly int m_maxSearchTerms;
 
-        private const string DEFAULT_THEME = "Light";
-        private ThemeType m_currentTheme = Enum.Parse<ThemeType>(DEFAULT_THEME);
+        private const ThemeType DEFAULT_THEME = ThemeType.Light;
+        private ThemeType m_currentTheme;
 
         public class FileSearchResult
         {
@@ -98,18 +98,18 @@ namespace rg_gui
             InitializeComponent();
 
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            Left = double.TryParse(config.AppSettings.Settings["MainWindowLeft"].Value, out var left) ? left : DEFAULT_MAINWINDOW_LEFT;
-            Top = double.TryParse(config.AppSettings.Settings["MainWindowTop"].Value, out var top) ? top : DEFAULT_MAINWINDOW_TOP;
-            Width = double.TryParse(config.AppSettings.Settings["MainWindowWidth"].Value, out var width) ? width : DEFAULT_MAINWINDOW_WIDTH;
-            Height = double.TryParse(config.AppSettings.Settings["MainWindowHeight"].Value, out var height) ? height : DEFAULT_MAINWINDOW_HEIGHT;
-            WindowState = int.TryParse(config.AppSettings.Settings["MainWindowState"].Value, out var windowState) ? WindowState : DEFAULT_MAINWINDOW_STATE;
+            Left = double.TryParse(config.AppSettings.Settings["MainWindowLeft"]?.Value, out var left) ? left : DEFAULT_MAINWINDOW_LEFT;
+            Top = double.TryParse(config.AppSettings.Settings["MainWindowTop"]?.Value, out var top) ? top : DEFAULT_MAINWINDOW_TOP;
+            Width = double.TryParse(config.AppSettings.Settings["MainWindowWidth"]?.Value, out var width) ? width : DEFAULT_MAINWINDOW_WIDTH;
+            Height = double.TryParse(config.AppSettings.Settings["MainWindowHeight"]?.Value, out var height) ? height : DEFAULT_MAINWINDOW_HEIGHT;
+            WindowState = int.TryParse(config.AppSettings.Settings["MainWindowState"]?.Value, out var windowState) ? WindowState : DEFAULT_MAINWINDOW_STATE;
 
             txtBasePath.Text = config.AppSettings.Settings["BasePath"]?.Value ?? DEFAULT_BASEPATH;
             txtIncludeFiles.Text = config.AppSettings.Settings["IncludeFiles"]?.Value ?? DEFAULT_INCLUDEFILES;
             txtExcludeFiles.Text = config.AppSettings.Settings["ExcludeFiles"]?.Value ?? DEFAULT_EXCLUDEFILES;
             txtContainingText.Text = config.AppSettings.Settings["ContainingText"]?.Value ?? DEFAULT_CONTAININGTEXT;
-            chkCaseSensitive.IsChecked = bool.Parse(config.AppSettings.Settings["CaseSensitive"]?.Value ?? DEFAULT_CASESENSITIVE);
-            chkRecursive.IsChecked = bool.Parse(config.AppSettings.Settings["Recursive"]?.Value ?? DEFAULT_RECURSIVE);
+            chkCaseSensitive.IsChecked = bool.TryParse(config.AppSettings.Settings["CaseSensitive"]?.Value, out var caseSensitive) ? caseSensitive : DEFAULT_CASESENSITIVE;
+            chkRecursive.IsChecked = bool.TryParse(config.AppSettings.Settings["Recursive"]?.Value, out var recursive) ? recursive : DEFAULT_RECURSIVE;
 
             var fileEncoding = cmbEncoding.FindName(config.AppSettings.Settings["FileEncoding"]?.Value ?? DEFAULT_FILEENCODING);
             if (fileEncoding != null)
@@ -132,19 +132,8 @@ namespace rg_gui
                 cmbFileSizeUnit.SelectedIndex = 0;
             }
 
-            var themeName = config.AppSettings.Settings["Theme"]?.Value ?? DEFAULT_THEME;
-            if (Enum.TryParse<ThemeType>(themeName, true, out var theme))
-            {
-                m_currentTheme = theme;
-            }
-
-            try
-            {
-                ThemesController.SetTheme(m_currentTheme);
-            }
-            catch (Exception)
-            {
-            }
+            m_currentTheme = Enum.TryParse<ThemeType>(config.AppSettings.Settings["Theme"]?.Value, out var themeName) ? themeName : DEFAULT_THEME;
+            ThemesController.SetTheme(m_currentTheme);
 
             m_ripGrepWrapper = new RipGrepWrapper(config.AppSettings.Settings["RipGrepPath"]?.Value ?? throw new Exception("RipGrepPath not set."));
 
@@ -157,27 +146,39 @@ namespace rg_gui
             m_ripGrepWrapper.FileFound += OnFileAdded;
         }
 
+        private static void SetConfigValue(Configuration config, string key, string value)
+        {
+            if (config.AppSettings.Settings[key] != null)
+            {
+                config.AppSettings.Settings[key].Value = value;
+            }
+            else
+            {
+                config.AppSettings.Settings.Add(key, value);
+            }
+        }
+
         private void OnClosing(object? sender, EventArgs e)
         {
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["MainWindowLeft"].Value = Left.ToString();
-            config.AppSettings.Settings["MainWindowTop"].Value = Top.ToString();
-            config.AppSettings.Settings["MainWindowWidth"].Value = Width.ToString();
-            config.AppSettings.Settings["MainWindowHeight"].Value = Height.ToString();
-            config.AppSettings.Settings["MainWindowState"].Value = ((int)WindowState).ToString();
+            SetConfigValue(config, "MainWindowLeft", Left.ToString());
+            SetConfigValue(config, "MainWindowTop", Top.ToString());
+            SetConfigValue(config, "MainWindowWidth", Width.ToString());
+            SetConfigValue(config, "MainWindowHeight", Height.ToString());
+            SetConfigValue(config, "MainWindowState", ((int)WindowState).ToString());
 
-            config.AppSettings.Settings["BasePath"].Value = txtBasePath.Text;
-            config.AppSettings.Settings["IncludeFiles"].Value = txtIncludeFiles.Text;
-            config.AppSettings.Settings["ExcludeFiles"].Value = txtExcludeFiles.Text;
-            config.AppSettings.Settings["ContainingText"].Value = txtContainingText.Text;
-            config.AppSettings.Settings["CaseSensitive"].Value = (chkCaseSensitive.IsChecked ?? bool.Parse(DEFAULT_CASESENSITIVE)) ? "true" : "false";
-            config.AppSettings.Settings["Recursive"].Value = (chkRecursive.IsChecked ?? bool.Parse(DEFAULT_RECURSIVE)) ? "true" : "false";
-            config.AppSettings.Settings["RegularExpression"].Value = (chkRegularExpression.IsChecked ?? bool.Parse(DEFAULT_REGULAREXPRESSION)) ? "true" : "false";
+            SetConfigValue(config, "BasePath", txtBasePath.Text);
+            SetConfigValue(config, "IncludeFiles", txtIncludeFiles.Text);
+            SetConfigValue(config, "ExcludeFiles", txtExcludeFiles.Text);
+            SetConfigValue(config, "ContainingText", txtContainingText.Text);
+            SetConfigValue(config, "CaseSensitive", (chkCaseSensitive.IsChecked ?? DEFAULT_CASESENSITIVE).ToString());
+            SetConfigValue(config, "Recursive", (chkRecursive.IsChecked ?? DEFAULT_RECURSIVE).ToString());
+            SetConfigValue(config, "RegularExpression", (chkRegularExpression.IsChecked ?? DEFAULT_REGULAREXPRESSION).ToString());
 
-            config.AppSettings.Settings["FileEncoding"].Value = ((ComboBoxItem)cmbEncoding.SelectedItem).Name;
-            config.AppSettings.Settings["MaxFileSize"].Value = txtMaxFileSize.Text;
-            config.AppSettings.Settings["MaxFileSizeUnit"].Value = ((ComboBoxItem)cmbFileSizeUnit.SelectedItem).Name;
-            config.AppSettings.Settings["Theme"].Value = m_currentTheme.ToString();
+            SetConfigValue(config, "FileEncoding", ((ComboBoxItem)cmbEncoding.SelectedItem).Name);
+            SetConfigValue(config, "MaxFileSize", txtMaxFileSize.Text);
+            SetConfigValue(config, "MaxFileSizeUnit", ((ComboBoxItem)cmbFileSizeUnit.SelectedItem).Name);
+            SetConfigValue(config, "Theme", m_currentTheme.ToString());
             config.Save();
 
             ConfigurationManager.RefreshSection("appSettings");
