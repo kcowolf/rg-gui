@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using FramePFX.Themes;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -45,7 +46,7 @@ namespace rg_gui
                     textBlock.Inlines.Add(new Run(value.Substring(startingIndex, matches[i].Groups[0].Index - startingIndex)));
                 }
 
-                textBlock.Inlines.Add(new Run(matches[i].Groups[1].Value) { Background = Brushes.Cyan });
+                textBlock.Inlines.Add(new Run(matches[i].Groups[1].Value) { Background = new SolidColorBrush((Color)ThemesController.GetResource("AColour.DataGrid.TextHighlightBackground")) });
                 startingIndex = matches[i].Index + matches[i].Length;
             }
 

@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Title="rg-gui" Height="450" Width="800"
         d:DataContext="{d:DesignInstance Type=local:RipGrepWrapper}"
-        Closing="OnClosing" Icon="pack://application:,,,/icon.ico">
+        Closing="OnClosing" Icon="pack://application:,,,/icon.ico"
+        Style="{StaticResource CustomWindowStyle}">
     <Grid Margin="5,5,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -111,10 +112,10 @@
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem BorderThickness="1,1,0,1" BorderBrush="#FF688CAF">
+            <StatusBarItem BorderThickness="1,1,0,1">
                 <TextBlock x:Name="txtFileListStatus" TextAlignment="Left"/>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="1" BorderThickness="0,1,1,1" BorderBrush="#FF688CAF">
+            <StatusBarItem Grid.Column="1" BorderThickness="0,1,1,1">
                 <TextBlock x:Name="txtResultLineStatus" TextAlignment="Right"/>
             </StatusBarItem>
         </StatusBar>
