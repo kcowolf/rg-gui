@@ -4,7 +4,7 @@
 ![screenshot2](screenshot2.png)
 
 [![License: MIT](https://img.shields.io/github/license/kcowolf/rg-gui)](https://opensource.org/licenses/MIT)
- 
+
 ## Installation
 
 RipGrep must be installed on your computer.  You can download it from [here](https://github.com/BurntSushi/ripgrep/releases).  Currently, version 13.0.0 is supported.  Unzip it to a convenient location such as `C:\ripgrep-13.0.0-x86_64-pc-windows-msvc`.
@@ -34,6 +34,16 @@ Theme can be selected in rg-gui.dll.config.  Valid values are "Light" and "Dark"
 ```xml
 <add key="Theme" value="Light"/>
 ```
+
+
+## Multi-color Highlighting
+
+If a search contains multiple terms, the results for each term can be highlighted in a separate color (up to 4 colors).  If this is disabled, results for all terms will be highlighted using the same color.  Using multiple highlight colors can be enabled or disabled in rg-gui.dll.config.  Valid values are "True" and "False".
+
+```xml
+<add key="MultipleHighlightColors" value="True"/>
+```
+
 
 ## Credits
 
