@@ -51,6 +51,7 @@
     <SolidColorBrush x:Key="DataGrid.Static.Foreground"                       Color="{DynamicResource AColour.DataGrid.Static.Foreground}"/>
     <SolidColorBrush x:Key="DataGrid.HorizontalSeparatorBrush"                Color="{DynamicResource AColour.DataGrid.HorizontalSeparatorBrush}"/>
     <SolidColorBrush x:Key="DataGrid.VerticalSeparatorBrush"                  Color="{DynamicResource AColour.DataGrid.VerticalSeparatorBrush}"/>
+    <SolidColorBrush x:Key="DataGrid.ScrollBar.Border"                        Color="{DynamicResource AColour.DataGrid.ScrollBar.Border}"/>
     <SolidColorBrush x:Key="DataGrid.HeaderItem.Static.Background"            Color="{DynamicResource AColour.DataGrid.HeaderItem.Static.Background}"/>
     <SolidColorBrush x:Key="DataGrid.HeaderItem.Static.Foreground"            Color="{DynamicResource AColour.DataGrid.HeaderItem.Static.Foreground}"/>
     <SolidColorBrush x:Key="DataGrid.HeaderItem.MouseOver.Background"         Color="{DynamicResource AColour.DataGrid.HeaderItem.MouseOver.Background}"/>

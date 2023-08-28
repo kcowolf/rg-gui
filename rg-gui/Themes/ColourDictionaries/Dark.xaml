@@ -51,6 +51,7 @@
     <Color x:Key="AColour.DataGrid.Static.Foreground"                        R="229" G="229" B="229" A="255"/>
     <Color x:Key="AColour.DataGrid.HorizontalSeparatorBrush"                 R="63" G="63" B="70" A="255"/>
     <Color x:Key="AColour.DataGrid.VerticalSeparatorBrush"                   R="63" G="63" B="70" A="255"/>
+    <Color x:Key="AColour.DataGrid.ScrollBar.Border"                         R="63" G="63" B="70" A="255"/>
     <Color x:Key="AColour.DataGrid.HeaderItem.Static.Background"             R="45" G="45" B="48" A="255"/>
     <Color x:Key="AColour.DataGrid.HeaderItem.Static.Foreground"             R="229" G="229" B="229" A="255"/>
     <Color x:Key="AColour.DataGrid.HeaderItem.MouseOver.Background"          R="62" G="62" B="64" A="255"/>
