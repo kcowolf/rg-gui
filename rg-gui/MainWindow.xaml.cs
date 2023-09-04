@@ -135,7 +135,14 @@ namespace rg_gui
             m_currentTheme = Enum.TryParse<ThemeType>(config.AppSettings.Settings["Theme"]?.Value, out var themeName) ? themeName : DEFAULT_THEME;
             ThemesController.SetTheme(m_currentTheme);
 
-            m_ripGrepWrapper = new RipGrepWrapper(config.AppSettings.Settings["RipGrepPath"]?.Value ?? throw new Exception("RipGrepPath not set."));
+            var ripgrepPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? string.Empty, "rg.exe");
+            if (!File.Exists(ripgrepPath))
+            {
+                MessageBox.Show("rg.exe not found in installation path.", "Error");
+                throw new Exception("rg.exe not found in installation path.");
+            }
+
+            m_ripGrepWrapper = new RipGrepWrapper(ripgrepPath);
 
             m_maxSearchTerms = int.TryParse(config.AppSettings.Settings["MaxSearchTerms"]?.Value, out var maxSearchTerms) ? maxSearchTerms : DEFAULT_MAXSEARCHTERMS;
 

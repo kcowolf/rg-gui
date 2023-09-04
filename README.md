@@ -7,16 +7,7 @@
  
 ## Installation
 
-RipGrep must be installed on your computer.  You can download it from [here](https://github.com/BurntSushi/ripgrep/releases).  Currently, version 13.0.0 is supported.  Unzip it to a convenient location such as `C:\ripgrep-13.0.0-x86_64-pc-windows-msvc`.
-
-Download the latest release of rg-gui from the [Releases page](https://github.com/kcowolf/rg-gui/releases).  Unzip it to a convenient location such as `C:\rg-gui`.
-
-In rg-gui.dll.config, specify the location of the RipGrep executable.
-
-```xml
-<add key="RipGrepPath" value="C:\ripgrep-13.0.0-x86_64-pc-windows-msvc\rg.exe"/>
-```
-
+Download the latest installer from https://github.com/kcowolf/rg-gui/releases.  The installer includes the RipGrep executable rg.exe, which is expected to be installed to the same folder as rg-gui.
 
 ## Usage
 
