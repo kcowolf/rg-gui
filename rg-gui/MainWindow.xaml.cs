@@ -121,7 +121,7 @@ namespace rg_gui
                 cmbEncoding.SelectedIndex = 0;
             }
 
-            txtMaxFileSize.Text = (int.TryParse(config.AppSettings.Settings["MaxFileSize"].Value, out var maxFileSize) ? maxFileSize : DEFAULT_MAXFILESIZE).ToString();
+            txtMaxFileSize.Text = (int.TryParse(config.AppSettings.Settings["MaxFileSize"]?.Value, out var maxFileSize) ? maxFileSize : DEFAULT_MAXFILESIZE).ToString();
             var maxFileSizeUnit = cmbFileSizeUnit.FindName(config.AppSettings.Settings["MaxFileSizeUnit"]?.Value ?? DEFAULT_MAXFILESIZEUNIT);
             if (maxFileSizeUnit != null)
             {
