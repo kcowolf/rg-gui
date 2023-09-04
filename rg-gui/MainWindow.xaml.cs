@@ -97,7 +97,7 @@ namespace rg_gui
         {
             InitializeComponent();
 
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var config = GetConfiguration();
             Left = double.TryParse(config.AppSettings.Settings["MainWindowLeft"]?.Value, out var left) ? left : DEFAULT_MAINWINDOW_LEFT;
             Top = double.TryParse(config.AppSettings.Settings["MainWindowTop"]?.Value, out var top) ? top : DEFAULT_MAINWINDOW_TOP;
             Width = double.TryParse(config.AppSettings.Settings["MainWindowWidth"]?.Value, out var width) ? width : DEFAULT_MAINWINDOW_WIDTH;
@@ -146,6 +146,18 @@ namespace rg_gui
             m_ripGrepWrapper.FileFound += OnFileAdded;
         }
 
+        private static Configuration GetConfiguration()
+        {
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var configPath = $"{appData}\\kcowolf\\rg-gui\\rg-gui.exe.config";
+
+            var fileMap = new ExeConfigurationFileMap
+            {
+                ExeConfigFilename = configPath
+            };
+            return ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+        }
+
         private static void SetConfigValue(Configuration config, string key, string value)
         {
             if (config.AppSettings.Settings[key] != null)
@@ -160,7 +172,7 @@ namespace rg_gui
 
         private void OnClosing(object? sender, EventArgs e)
         {
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var config = GetConfiguration();
             SetConfigValue(config, "MainWindowLeft", Left.ToString());
             SetConfigValue(config, "MainWindowTop", Top.ToString());
             SetConfigValue(config, "MainWindowWidth", Width.ToString());
