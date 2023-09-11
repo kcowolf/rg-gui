@@ -1,0 +1,61 @@
+﻿<Window x:Class="rg_gui.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:rg_gui"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        Title="Settings" Height="150" Width="250"
+        Style="{StaticResource CustomWindowStyle}"
+        ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Margin="0,0,5,5" Content="Theme" VerticalContentAlignment="Center"/>
+            <ComboBox Grid.Row="0" Grid.Column="1" Margin="5,0,0,5" x:Name="cmbTheme" VerticalAlignment="Center" SelectedValue="{Binding Path=Theme}" SelectedValuePath="Content">
+                <ComboBoxItem x:Name="Light" Content="Light"/>
+                <ComboBoxItem x:Name="Dark" Content="Dark"/>
+            </ComboBox>
+
+            <Label Grid.Row="1" Grid.Column="0" Margin="0,0,5,5" Content="Maximum search terms" VerticalContentAlignment="Center"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="5,0,0,5" x:Name="txtMaxTerms" VerticalAlignment="Center" Text="{Binding Path=MaxSearchTerms, Mode=TwoWay}" TextChanged="txtMaxTerms_TextChanged"/>
+
+            <Label Grid.Row="2" Grid.Column="0" Margin="0,0,5,5" Content="Multi-color highlighting" VerticalContentAlignment="Center"/>
+            <CheckBox Grid.Row="2" Grid.Column="1" Margin="5,0,0,5" x:Name="chkMulticolor" VerticalContentAlignment="Center" IsChecked="{Binding Path=Multicolor, Mode=TwoWay}"/>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Row="0" Grid.Column="1" Margin="5,0,0,5" x:Name="btnOK" Content="OK" Click="btnOK_Click" MinWidth="80" />
+            <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,5" x:Name="btnCancel" Content="Cancel" Click="btnCancel_Click" MinWidth="80" />
+        </Grid>
+    </Grid>
+</Window>

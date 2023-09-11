@@ -42,6 +42,7 @@
             <TextBox Grid.Row="1" Grid.Column="3" Margin="0,0,0,5" x:Name="txtExcludeFiles" TextWrapping="NoWrap" VerticalContentAlignment="Center" TabIndex="2"/>
             <Label Grid.Row="2" Grid.Column="0" Margin="0,0,5,5" Content="Containing Text" VerticalContentAlignment="Center"/>
             <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,5" x:Name="txtContainingText" TextWrapping="NoWrap" VerticalContentAlignment="Center" KeyDown="txtContainingText_OnKeyDown" TabIndex="3"/>
+            <Button Grid.Row="2" Grid.Column="4" Margin="5,0,0,5" x:Name="btnSettings" Content="Settings" Click="btnSettings_Click" MinWidth="80" TabIndex="6"/>
             <Button Grid.Row="2" Grid.Column="5" Margin="5,0,0,5" x:Name="btnCancel" Content="Cancel" Click="btnCancel_Click" IsEnabled="False" TabIndex="5"/>
         </Grid>
 
@@ -59,12 +60,12 @@
             <CheckBox Grid.Row="1" Grid.Column="0" Margin="0,0,0,5" x:Name="chkRecursive" Content="Recursive" VerticalContentAlignment="Center"/>
             <CheckBox Grid.Row="1" Grid.Column="1" Margin="15,0,0,5" x:Name="chkCaseSensitive" Content="Case-sensitive" VerticalContentAlignment="Center"/>
             <CheckBox Grid.Row="1" Grid.Column="2" Margin="15,0,0,5" x:Name="chkRegularExpression" Content="Regular Expression" VerticalContentAlignment="Center"/>
-            <TextBlock Grid.Row="1" Grid.Column="3" Margin="15,-2,0,5" Text="File Encoding:" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="3" Margin="15,0,0,5" Text="File Encoding:" VerticalAlignment="Center"/>
             <ComboBox Grid.Row="1" Grid.Column="4" Margin="5,0,0,5" x:Name="cmbEncoding" VerticalAlignment="Center">
                 <ComboBoxItem x:Name="Auto" Content="Auto"/>
                 <ComboBoxItem x:Name="GBK" Content="GBK"/>
             </ComboBox>
-            <TextBlock Grid.Row="1" Grid.Column="5" Margin="15,-2,0,5" Text="Max file size:" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="5" Margin="15,0,0,5" Text="Max file size:" VerticalAlignment="Center"/>
             <TextBox Grid.Row="1" Grid.Column="6" Margin="5,0,0,5" x:Name="txtMaxFileSize" VerticalAlignment="Center" TextAlignment="Right" TextChanged="txtMaxFileSize_TextChanged"/>
             <ComboBox Grid.Row="1" Grid.Column="7" Margin="0,0,0,5" x:Name="cmbFileSizeUnit" VerticalAlignment="Center" SelectionChanged="cmbFileSizeUnit_SelectionChanged">
                 <ComboBoxItem x:Name="None" Content="(none)"/>
