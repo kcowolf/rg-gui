@@ -1,5 +1,4 @@
-﻿using ConcurrentCollections;
-using FramePFX.Themes;
+﻿using FramePFX.Themes;
 using Ookii.Dialogs.Wpf;
 using Peter;
 using System;
@@ -8,9 +7,9 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -45,6 +44,8 @@ namespace rg_gui
 
         private const int DEFAULT_MAXSEARCHTERMS = 10;
 
+        private const int HIGHLIGHT_COLORS_COUNT = 4;
+
         private string m_currentInput = string.Empty;
         private string? m_currentSuggestion = string.Empty;
         private string m_currentText = string.Empty;
@@ -56,6 +57,9 @@ namespace rg_gui
 
         private const ThemeType DEFAULT_THEME = ThemeType.Light;
         private ThemeType m_currentTheme;
+
+        private const bool DEFAULT_MULTIPLEHIGHLIGHTCOLORS = true;
+        private bool m_multipleHighlightColors = DEFAULT_MULTIPLEHIGHLIGHTCOLORS;
 
         public class FileSearchResult
         {
@@ -89,9 +93,6 @@ namespace rg_gui
 
         public RangeObservableCollection<FileSearchResult> FileResultItems = new();
         public RangeObservableCollection<ResultLine> ResultLineItems = new();
-
-        private readonly ConcurrentHashSet<(string, string, int)> m_fileResults = new();
-        private int m_searchInstanceCount;
 
         public MainWindow()
         {
@@ -139,6 +140,8 @@ namespace rg_gui
 
             m_maxSearchTerms = int.TryParse(config.AppSettings.Settings["MaxSearchTerms"]?.Value, out var maxSearchTerms) ? maxSearchTerms : DEFAULT_MAXSEARCHTERMS;
 
+            m_multipleHighlightColors = bool.TryParse(config.AppSettings.Settings["MultipleHighlightColors"]?.Value, out var multipleHighlightColors) ? multipleHighlightColors : DEFAULT_MULTIPLEHIGHLIGHTCOLORS;
+
             DataContext = m_ripGrepWrapper;
             gridFileResults.DataContext = FileResultItems;
             gridResultLines.DataContext = ResultLineItems;
@@ -179,25 +182,14 @@ namespace rg_gui
             SetConfigValue(config, "MaxFileSize", txtMaxFileSize.Text);
             SetConfigValue(config, "MaxFileSizeUnit", ((ComboBoxItem)cmbFileSizeUnit.SelectedItem).Name);
             SetConfigValue(config, "Theme", m_currentTheme.ToString());
+            SetConfigValue(config, "MultipleHighlightColors", m_multipleHighlightColors.ToString());
             config.Save();
 
             ConfigurationManager.RefreshSection("appSettings");
         }
 
-        private void OnFileAdded(object? sender, (string path, string filename, int index) result)
+        private void OnFileAdded(object? sender, (string path, string filename) result)
         {
-            m_fileResults.Add((result.path, result.filename, result.index));
-
-            // If result not present in all lists, return.
-            for (int i = 0; i < m_searchInstanceCount; i++)
-            {
-                if (!m_fileResults.Contains((result.path, result.filename, i)))
-                {
-                    return;
-                }
-            }
-
-            // If we reach this point, result was found by all search instances.
             Application.Current.Dispatcher.Invoke(delegate
             {
                 // Ensure the same result won't be added multiple times.
@@ -241,16 +233,11 @@ namespace rg_gui
                 {
                     ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
 
-                    for (int i = 0; i < m_searchInstanceCount; i++)
+                    var lineResults = m_ripGrepWrapper.FileResults.Where(x => x.Key.path == addedItem.Path && x.Key.filename == addedItem.Filename).OrderBy(x => x.Key.lineNumber);
+
+                    foreach (var lineResult in lineResults)
                     {
-                        var resultLines = m_ripGrepWrapper.Results[(addedItem.Path, addedItem.Filename, i)];
-                        foreach (var resultLine in resultLines)
-                        {
-                            if (!ResultLineItems.Any(x => x.Line == resultLine.LineNumber))
-                            {
-                                ResultLineItems.Add(new ResultLine(resultLine.LineNumber, resultLine.LineContent.Trim()));
-                            }
-                        }
+                        ResultLineItems.Add(new ResultLine(lineResult.Key.lineNumber, GetColorizedString(lineResult.Value.LineContent, lineResult.Value.TermResults).Trim()));
                     }
 
                     txtResultLineStatus.Text = $"{ResultLineItems.Count} lines matched.";
@@ -292,9 +279,6 @@ namespace rg_gui
             var cancellationTokenSource = new CancellationTokenSource();
             m_cancellationTokenSource = cancellationTokenSource;
 
-            m_searchInstanceCount = searchTerms.Count;
-            m_fileResults.Clear();
-
             ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
             txtFileListStatus.Text = string.Empty;
             txtResultLineStatus.Text = string.Empty;
@@ -309,32 +293,23 @@ namespace rg_gui
 
             try
             {
-                int index = 0;
-                var ripGrepTasks = new List<Task>();
-                foreach (var searchTerm in searchTerms.Cast<Match>())
+                var searchParameters = new SearchParameters
                 {
-                    var searchParameters = new SearchParameters
-                    {
-                        StartPath = startPath,
-                        SearchString = searchTerm.Value,
-                        IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
-                        Recursive = chkRecursive.IsChecked ?? true,
-                        IncludePatterns = txtIncludeFiles.Text,
-                        ExcludePatterns = txtExcludeFiles.Text,
-                        RegularExpression = chkRegularExpression.IsChecked ?? false,
-                        Encoding = (FileEncoding)cmbEncoding.SelectedIndex,
-                        MaxFileSize = int.Parse(txtMaxFileSize.Text),
-                        MaxFileSizeUnit = (MaxFileSizeUnit)cmbFileSizeUnit.SelectedIndex,
-                    };
+                    StartPath = startPath,
+                    SearchStrings = searchTerms.Cast<Match>().Select(x => x.Value),
+                    IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
+                    Recursive = chkRecursive.IsChecked ?? true,
+                    IncludePatterns = txtIncludeFiles.Text,
+                    ExcludePatterns = txtExcludeFiles.Text,
+                    RegularExpression = chkRegularExpression.IsChecked ?? false,
+                    Encoding = (FileEncoding)cmbEncoding.SelectedIndex,
+                    MaxFileSize = int.Parse(txtMaxFileSize.Text),
+                    MaxFileSizeUnit = (MaxFileSizeUnit)cmbFileSizeUnit.SelectedIndex,
+                };
 
-                    FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());
+                FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());
 
-                    ripGrepTasks.Add(m_ripGrepWrapper.Search(searchParameters, cancellationTokenSource.Token, index));
-
-                    index++;
-                }
-
-                await Task.WhenAll(ripGrepTasks);
+                await m_ripGrepWrapper.Search(searchParameters, cancellationTokenSource.Token);
             }
             finally
             {
@@ -423,6 +398,66 @@ namespace rg_gui
         private void cmbFileSizeUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             txtMaxFileSize.IsEnabled = (cmbFileSizeUnit.SelectedIndex != 0);
+        }
+
+        private string GetColorizedString(string source, IEnumerable<TermResult> termResults)
+        {
+            var rangeColors = new Dictionary<Range, int>();
+
+            // Only add ranges which don't overlap values we've already added to rangeColors.
+            // If a range partially overlaps, take the non-overlapping portion.
+            // Terms which are earlier in the list take priority.
+
+            List<Range> remainingMatchRangesBefore;
+            List<Range> remainingMatchRangesAfter;
+
+            foreach (var termIndex in termResults.OrderBy(x => x.TermIndex).Select(x => x.TermIndex))
+            {
+                var termMatchRanges = termResults.Where(x => x.TermIndex == termIndex).OrderBy(x => x.Range.Start).Select(x => x.Range);
+                remainingMatchRangesAfter = termMatchRanges.ToList();
+
+                foreach (var previousRange in rangeColors.Keys)
+                {
+                    remainingMatchRangesBefore = remainingMatchRangesAfter;
+                    remainingMatchRangesAfter = new List<Range>();
+
+                    foreach (var remainingMatchRange in remainingMatchRangesBefore)
+                    {
+                        remainingMatchRangesAfter.AddRange(remainingMatchRange.GetNonOverlappingRanges(previousRange));
+                    }
+                }
+
+                foreach (var range in remainingMatchRangesAfter)
+                {
+                    rangeColors.Add(range, m_multipleHighlightColors ? termIndex % HIGHLIGHT_COLORS_COUNT : 0);
+                }
+            }
+
+            var stringBuilder = new StringBuilder();
+
+            var startingIndex = 0;
+            foreach (var rangeKey in rangeColors.Keys.OrderBy(x => x.Start))
+            {
+                if (startingIndex != rangeKey.Start)
+                {
+                    stringBuilder.Append(EscapeString(source.Substring(startingIndex, rangeKey.Start - startingIndex)));
+                }
+
+                stringBuilder.Append($"<c{rangeColors[rangeKey]}>");
+                stringBuilder.Append(EscapeString(source.Substring(rangeKey.Start, rangeKey.End - rangeKey.Start + 1)));
+                stringBuilder.Append($"</c{rangeColors[rangeKey]}>");
+
+                startingIndex = rangeKey.End + 1;
+            }
+
+            stringBuilder.Append(EscapeString(source.Substring(startingIndex)));
+
+            return stringBuilder.ToString();
+        }
+
+        private static string EscapeString(string source)
+        {
+            return source.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
         }
     }
 }

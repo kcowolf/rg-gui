@@ -49,8 +49,9 @@
     <Color x:Key="AColour.DataGrid.Static.Background"                        R="240" G="240" B="240" A="255"/>
     <Color x:Key="AColour.DataGrid.Static.Border"                            R="207" G="207" B="207" A="255"/>
     <Color x:Key="AColour.DataGrid.Static.Foreground"                        R="4" G="4" B="4" A="255"/>
-    <Color x:Key="AColour.DataGrid.HorizontalSeparatorBrush"                 R="207" G="207" B="207" A="255"/>
-    <Color x:Key="AColour.DataGrid.VerticalSeparatorBrush"                   R="207" G="207" B="207" A="255"/>
+    <Color x:Key="AColour.DataGrid.HorizontalSeparatorBrush"                 R="227" G="227" B="227" A="255"/>
+    <Color x:Key="AColour.DataGrid.VerticalSeparatorBrush"                   R="227" G="227" B="227" A="255"/>
+    <Color x:Key="AColour.DataGrid.ScrollBar.Border"                         R="227" G="227" B="227" A="255"/>
     <Color x:Key="AColour.DataGrid.HeaderItem.Static.Background"             R="245" G="246" B="247" A="255"/>
     <Color x:Key="AColour.DataGrid.HeaderItem.Static.Foreground"             R="4" G="4" B="4" A="255"/>
     <Color x:Key="AColour.DataGrid.HeaderItem.MouseOver.Background"          R="190" G="230" B="253" A="255"/>
@@ -60,7 +61,10 @@
     <Color x:Key="AColour.DataGrid.CellItem.Static.Background"               R="255" G="255" B="255" A="255"/>
     <Color x:Key="AColour.DataGrid.CellItem.MouseOver.Background"            R="255" G="255" B="255" A="255"/>
 
-    <Color x:Key="AColour.DataGrid.TextHighlightBackground"                  R="0" G="255" B="255" A="255" />
+    <Color x:Key="AColour.DataGrid.TextHighlightBackground0"                 R="0" G="255" B="255" A="255" />
+    <Color x:Key="AColour.DataGrid.TextHighlightBackground1"                 R="0" G="255" B="0" A="255" />
+    <Color x:Key="AColour.DataGrid.TextHighlightBackground2"                 R="255" G="255" B="0" A="255" />
+    <Color x:Key="AColour.DataGrid.TextHighlightBackground3"                 R="255" G="0" B="255" A="255" />
 
     <Color x:Key="AColour.FocusVisual.Border"                                R="143" G="212" B="252" A="255"/>
 

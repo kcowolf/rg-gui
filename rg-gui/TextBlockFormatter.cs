@@ -36,21 +36,26 @@ namespace rg_gui
                 return;
             }
 
-            var matches = Regex.Matches(value, @"\x1b\[0m\x1b\[1m\x1b\[31m(.+?)\x1b\[0m");
+            var matches = Regex.Matches(value, @"<c(\d)>(.+?)</c[\d]>");
             var startingIndex = 0;
 
             for (var i = 0; i < matches.Count; i++)
             {
                 if (startingIndex != matches[i].Groups[0].Index)
                 {
-                    textBlock.Inlines.Add(new Run(value.Substring(startingIndex, matches[i].Groups[0].Index - startingIndex)));
+                    textBlock.Inlines.Add(new Run(UnescapeString(value.Substring(startingIndex, matches[i].Groups[0].Index - startingIndex))));
                 }
 
-                textBlock.Inlines.Add(new Run(matches[i].Groups[1].Value) { Background = new SolidColorBrush((Color)ThemesController.GetResource("AColour.DataGrid.TextHighlightBackground")) });
+                textBlock.Inlines.Add(new Run(UnescapeString(matches[i].Groups[2].Value)) { Background = new SolidColorBrush((Color)ThemesController.GetResource($"AColour.DataGrid.TextHighlightBackground{matches[i].Groups[1].Value}")) });
                 startingIndex = matches[i].Index + matches[i].Length;
             }
 
-            textBlock.Inlines.Add(new Run(value.Substring(startingIndex)));
+            textBlock.Inlines.Add(new Run(UnescapeString(value.Substring(startingIndex))));
+        }
+
+        private static string UnescapeString(string source)
+        {
+            return source.Replace("&lt;", "<").Replace("&gt;", ">").Replace("&amp;", "&");
         }
     }
 }
