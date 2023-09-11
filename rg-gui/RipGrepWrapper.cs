@@ -33,7 +33,7 @@ namespace rg_gui
         {
             public string StartPath { get; set; } = string.Empty;
 
-            public string SearchString { get; set; } = string.Empty;
+            public IEnumerable<string> SearchStrings { get; set; } = Enumerable.Empty<string>();
 
             public string IncludePatterns { get; set; } = string.Empty;
 
@@ -81,14 +81,15 @@ namespace rg_gui
 
         public readonly ConcurrentBag<(string path, string filename, int termIndex)> FilesFound = new();
         public readonly ConcurrentDictionary<(string path, string filename, int lineNumber), LineResult> FileResults = new();
+        private int m_searchTermCount;
 
-        public event EventHandler<(string path, string filename, int termIndex)>? FileFound;
-        protected void RaiseFileFound(string path, string filename, int termIndex)
+        public event EventHandler<(string path, string filename)>? FileFound;
+        protected void RaiseFileFound(string path, string filename)
         {
-            FileFound?.Invoke(this, (path, filename, termIndex));
+            FileFound?.Invoke(this, (path, filename));
         }
 
-        private string m_ripGrepPath;
+        private readonly string m_ripGrepPath;
 
         public RipGrepWrapper(string ripGrepPath)
         {
@@ -101,7 +102,21 @@ namespace rg_gui
             FileResults.Clear();
         }
 
-        public async Task Search(SearchParameters searchParameters, CancellationToken cancellationToken, int termIndex)
+        public async Task Search(SearchParameters searchParameters, CancellationToken cancellationToken)
+        {
+            var searchTasks = new List<Task>();
+
+            m_searchTermCount = searchParameters.SearchStrings.Count();
+
+            for (var i = 0; i < m_searchTermCount; i++)
+            {
+                searchTasks.Add(Search(searchParameters, cancellationToken, i));
+            }
+
+            await Task.WhenAll(searchTasks);
+        }
+
+        private async Task Search(SearchParameters searchParameters, CancellationToken cancellationToken, int termIndex)
         {
             const string fieldMatchSeparator = "\t";
 
@@ -165,9 +180,11 @@ namespace rg_gui
             // Signal no more flags will be set.
             argsBuilder.Append("-- ");
 
-            if (!string.IsNullOrWhiteSpace(searchParameters.SearchString))
+            var searchString = searchParameters.SearchStrings.ElementAt(termIndex);
+
+            if (!string.IsNullOrWhiteSpace(searchString))
             {
-                argsBuilder.Append(searchParameters.SearchString);
+                argsBuilder.Append(searchString);
                 argsBuilder.Append(' ');
             }
 
@@ -203,7 +220,10 @@ namespace rg_gui
                                         if (!FilesFound.Contains((path, filename, termIndex)))
                                         {
                                             FilesFound.Add((path, filename, termIndex));
-                                            RaiseFileFound(path, filename, termIndex);
+                                            if (FilesFound.Where(x => x.path == path && x.filename == filename).Count() == m_searchTermCount)
+                                            {
+                                                RaiseFileFound(path, filename);
+                                            }
                                         }
 
                                         if (!FileResults.ContainsKey((path, filename, lineNumber)))

@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -94,8 +93,6 @@ namespace rg_gui
 
         public RangeObservableCollection<FileSearchResult> FileResultItems = new();
         public RangeObservableCollection<ResultLine> ResultLineItems = new();
-
-        private int m_searchInstanceCount;
 
         public MainWindow()
         {
@@ -191,14 +188,8 @@ namespace rg_gui
             ConfigurationManager.RefreshSection("appSettings");
         }
 
-        private void OnFileAdded(object? sender, (string path, string filename, int index) result)
+        private void OnFileAdded(object? sender, (string path, string filename) result)
         {
-            if (m_ripGrepWrapper.FilesFound.Where(x => x.path == result.path && x.filename == result.filename).Count() < m_searchInstanceCount)
-            {
-                return;
-            }
-
-            // If we reach this point, result was found by all search instances.
             Application.Current.Dispatcher.Invoke(delegate
             {
                 // Ensure the same result won't be added multiple times.
@@ -288,8 +279,6 @@ namespace rg_gui
             var cancellationTokenSource = new CancellationTokenSource();
             m_cancellationTokenSource = cancellationTokenSource;
 
-            m_searchInstanceCount = searchTerms.Count;
-
             ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
             txtFileListStatus.Text = string.Empty;
             txtResultLineStatus.Text = string.Empty;
@@ -304,32 +293,23 @@ namespace rg_gui
 
             try
             {
-                int index = 0;
-                var ripGrepTasks = new List<Task>();
-                foreach (var searchTerm in searchTerms.Cast<Match>())
+                var searchParameters = new SearchParameters
                 {
-                    var searchParameters = new SearchParameters
-                    {
-                        StartPath = startPath,
-                        SearchString = searchTerm.Value,
-                        IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
-                        Recursive = chkRecursive.IsChecked ?? true,
-                        IncludePatterns = txtIncludeFiles.Text,
-                        ExcludePatterns = txtExcludeFiles.Text,
-                        RegularExpression = chkRegularExpression.IsChecked ?? false,
-                        Encoding = (FileEncoding)cmbEncoding.SelectedIndex,
-                        MaxFileSize = int.Parse(txtMaxFileSize.Text),
-                        MaxFileSizeUnit = (MaxFileSizeUnit)cmbFileSizeUnit.SelectedIndex,
-                    };
+                    StartPath = startPath,
+                    SearchStrings = searchTerms.Cast<Match>().Select(x => x.Value),
+                    IgnoreCase = !(chkCaseSensitive.IsChecked ?? false),
+                    Recursive = chkRecursive.IsChecked ?? true,
+                    IncludePatterns = txtIncludeFiles.Text,
+                    ExcludePatterns = txtExcludeFiles.Text,
+                    RegularExpression = chkRegularExpression.IsChecked ?? false,
+                    Encoding = (FileEncoding)cmbEncoding.SelectedIndex,
+                    MaxFileSize = int.Parse(txtMaxFileSize.Text),
+                    MaxFileSizeUnit = (MaxFileSizeUnit)cmbFileSizeUnit.SelectedIndex,
+                };
 
-                    FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());
+                FileResultItems.Reset(Enumerable.Empty<FileSearchResult>());
 
-                    ripGrepTasks.Add(m_ripGrepWrapper.Search(searchParameters, cancellationTokenSource.Token, index));
-
-                    index++;
-                }
-
-                await Task.WhenAll(ripGrepTasks);
+                await m_ripGrepWrapper.Search(searchParameters, cancellationTokenSource.Token);
             }
             finally
             {
@@ -431,9 +411,9 @@ namespace rg_gui
             List<Range> remainingMatchRangesBefore;
             List<Range> remainingMatchRangesAfter;
 
-            foreach (var termIdx in termResults.OrderBy(x => x.TermIndex).Select(x => x.TermIndex))
+            foreach (var termIndex in termResults.OrderBy(x => x.TermIndex).Select(x => x.TermIndex))
             {
-                var termMatchRanges = termResults.Where(x => x.TermIndex == termIdx).OrderBy(x => x.Range.Start).Select(x => x.Range);
+                var termMatchRanges = termResults.Where(x => x.TermIndex == termIndex).OrderBy(x => x.Range.Start).Select(x => x.Range);
                 remainingMatchRangesAfter = termMatchRanges.ToList();
 
                 foreach (var previousRange in rangeColors.Keys)
@@ -449,7 +429,7 @@ namespace rg_gui
 
                 foreach (var range in remainingMatchRangesAfter)
                 {
-                    rangeColors.Add(range, m_multipleHighlightColors ? termIdx % HIGHLIGHT_COLORS_COUNT : 0);
+                    rangeColors.Add(range, m_multipleHighlightColors ? termIndex % HIGHLIGHT_COLORS_COUNT : 0);
                 }
             }
 
