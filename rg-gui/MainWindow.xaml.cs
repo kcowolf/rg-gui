@@ -53,7 +53,7 @@ namespace rg_gui
         private int m_selectionLength;
         private IEnumerable<string> m_folderSuggestionValues = Enumerable.Empty<string>();
 
-        private readonly int m_maxSearchTerms;
+        private int m_maxSearchTerms;
 
         private const ThemeType DEFAULT_THEME = ThemeType.Light;
         private ThemeType m_currentTheme;
@@ -267,6 +267,12 @@ namespace rg_gui
                 return;
             }
 
+            // Sanity check -- allow minimum of one search term.
+            if (m_maxSearchTerms < 1)
+            {
+                m_maxSearchTerms = 1;
+            }
+
             if (searchTerms.Count > m_maxSearchTerms)
             {
                 MessageBox.Show($"Search text contains more than {m_maxSearchTerms} terms.");
@@ -276,6 +282,7 @@ namespace rg_gui
             var stopwatch = Stopwatch.StartNew();
             btnStart.IsEnabled = false;
             btnCancel.IsEnabled = true;
+            btnSettings.IsEnabled = false;
             var cancellationTokenSource = new CancellationTokenSource();
             m_cancellationTokenSource = cancellationTokenSource;
 
@@ -315,6 +322,7 @@ namespace rg_gui
             {
                 btnCancel.IsEnabled = false;
                 btnStart.IsEnabled = true;
+                btnSettings.IsEnabled = true;
 
                 m_cancellationTokenSource = null;
                 cancellationTokenSource.Cancel();
@@ -342,6 +350,25 @@ namespace rg_gui
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             m_cancellationTokenSource?.Cancel();
+        }
+
+        private void btnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var settingsWindow = new SettingsWindow
+            {
+                Owner = this,
+                Theme = m_currentTheme.GetName(),
+                MaxSearchTerms = m_maxSearchTerms,
+                Multicolor = m_multipleHighlightColors,
+            };
+
+            if (settingsWindow.ShowDialog() == true)
+            {
+                m_currentTheme = Enum.Parse<ThemeType>(settingsWindow.Theme);
+                ThemesController.SetTheme(m_currentTheme);
+                m_maxSearchTerms = settingsWindow.MaxSearchTerms;
+                m_multipleHighlightColors = settingsWindow.Multicolor;
+            }
         }
 
         private void txtContainingText_OnKeyDown(object sender, KeyEventArgs e)
