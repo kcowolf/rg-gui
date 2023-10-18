@@ -17,6 +17,7 @@ In rg-gui.dll.config, specify the location of the RipGrep executable.
 <add key="RipGrepPath" value="C:\ripgrep-13.0.0-x86_64-pc-windows-msvc\rg.exe"/>
 ```
 
+The **.NET Desktop Runtime 6** must also be installed installed.  You can download it from here: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 
 ## Usage
 

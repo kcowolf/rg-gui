@@ -1,0 +1,53 @@
+name: DotNet
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: .
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout rg-gui
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+
+    - name: Checkout depends
+      uses: actions/checkout@v4
+      with:
+        repository: kcowolf/rg-gui-depends
+        path: depends
+
+    - name: Setup DotNet
+      uses: actions/setup-dotnet@v1
+
+    - name: Restore NuGet packages
+      run: dotnet restore
+
+    - name: Build with dotnet
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Publish
+      run: dotnet publish rg-gui.sln --configuration Release --framework net6.0-windows --output ./publish --runtime win-x64  --self-contained false -p:PublishSingleFile=true
+
+    - name: Compress files
+      run: |-
+        powershell Compress-Archive ${{ github.workspace }}\publish\*.exe,${{ github.workspace }}\publish\*.config,${{ github.workspace }}\depends\ripgrep\rg.exe ${{ github.workspace }}\rg-gui-${{ github.ref_name }}.zip
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: rg-gui-${{ github.ref_name }}.zip
