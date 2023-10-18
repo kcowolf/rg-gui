@@ -7,17 +7,11 @@
 
 ## Installation
 
-RipGrep must be installed on your computer.  You can download it from [here](https://github.com/BurntSushi/ripgrep/releases).  Currently, version 13.0.0 is supported.  Unzip it to a convenient location such as `C:\ripgrep-13.0.0-x86_64-pc-windows-msvc`.
-
 Download the latest release of rg-gui from the [Releases page](https://github.com/kcowolf/rg-gui/releases).  Unzip it to a convenient location such as `C:\rg-gui`.
 
-In rg-gui.dll.config, specify the location of the RipGrep executable.
+The RipGrep executable `rg.exe` is included in the rg-gui release.  It needs to be in the same folder as `rg-gui.exe`.
 
-```xml
-<add key="RipGrepPath" value="C:\ripgrep-13.0.0-x86_64-pc-windows-msvc\rg.exe"/>
-```
-
-The **.NET Desktop Runtime 6** must also be installed installed.  You can download it from here: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+The **.NET Desktop Runtime 6** must also be installed.  You can download it from here: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 
 ## Usage
 
@@ -27,24 +21,19 @@ Include Files and Exclude Files can be path or file names and can include wildca
 
 Finally, type the text you would like to search for in the "Containing Text" box.  Press the Start button to start your search.
 
+## Settings
 
-## Themes
+### Theme
 
-Theme can be selected in rg-gui.dll.config.  Valid values are "Light" and "Dark".
+Color theme for the app.  Light and Dark themes are included.
 
-```xml
-<add key="Theme" value="Light"/>
-```
+### Maximum Search Terms
 
+Maximum number of terms (a word or quoted string) which can be typed in the "Containing Text" box.  This number determines the maximum number of processes rg-gui will run while searching.
 
-## Multi-color Highlighting
+### Multi-color Highlighting
 
-If a search contains multiple terms, the results for each term can be highlighted in a separate color (up to 4 colors).  If this is disabled, results for all terms will be highlighted using the same color.  Using multiple highlight colors can be enabled or disabled in rg-gui.dll.config.  Valid values are "True" and "False".
-
-```xml
-<add key="MultipleHighlightColors" value="True"/>
-```
-
+If a search contains multiple terms, the results for each term can be highlighted in a separate color (up to 4 colors).  If this is disabled, results for all terms will be highlighted using the same color.
 
 ## Credits
 
