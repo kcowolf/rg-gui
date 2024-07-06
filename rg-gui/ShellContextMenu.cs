@@ -15,18 +15,18 @@ namespace Peter
 {
     /// <summary>
     /// "Stand-alone" shell context menu
-    /// 
+    ///
     /// It isn't really debugged but is mostly working.
     /// Create an instance and call ShowContextMenu with a list of FileInfo for the files.
     /// Limitation is that it only handles files in the same directory but it can be fixed
     /// by changing the way files are translated into PIDLs.
-    /// 
+    ///
     /// Based on FileBrowser in C# from CodeProject
     /// http://www.codeproject.com/useritems/FileBrowser.asp
-    /// 
+    ///
     /// Hooking class taken from MSDN Magazine Cutting Edge column
     /// http://msdn.microsoft.com/msdnmag/issues/02/10/CuttingEdge/
-    /// 
+    ///
     /// Andreas Johansson
     /// afjohansson@hotmail.com
     /// http://afjohansson.spaces.live.com
@@ -88,8 +88,8 @@ namespace Peter
         #region Override
 
         /// <summary>
-        /// This method receives WindowMessages. It will make the "Open With" and "Send To" work 
-        /// by calling HandleMenuMsg and HandleMenuMsg2. It will also call the OnContextMenuMouseHover 
+        /// This method receives WindowMessages. It will make the "Open With" and "Send To" work
+        /// by calling HandleMenuMsg and HandleMenuMsg2. It will also call the OnContextMenuMouseHover
         /// method of Browser when hovering over a ContextMenu item.
         /// </summary>
         /// <param name="m">the Message of the Browser's WndProc</param>
@@ -161,13 +161,20 @@ namespace Peter
             invoke.ptInvoke = new POINT(pointInvoke.X, pointInvoke.Y);
             invoke.nShow = SW.SHOWNORMAL;
 
-            oContextMenu.InvokeCommand(ref invoke);
+            if (nCmd == CMD_OPENLOCATION)
+            {
+                SHOpenFolderAndSelectItems.ShowSelectedInExplorer.FilesOrFolders(_arrFI);
+            }
+            else
+            {
+                oContextMenu.InvokeCommand(ref invoke);
+            }
         }
         #endregion
 
         #region ReleaseAll()
         /// <summary>
-        /// Release all allocated interfaces, PIDLs 
+        /// Release all allocated interfaces, PIDLs
         /// </summary>
         private void ReleaseAll()
         {
@@ -200,6 +207,11 @@ namespace Peter
             {
                 FreePIDLs(_arrPIDLs);
                 _arrPIDLs = null;
+            }
+
+            if (null != _arrFI)
+            {
+                _arrFI = null;
             }
         }
         #endregion
@@ -392,6 +404,7 @@ namespace Peter
             try
             {
                 _arrPIDLs = GetPIDLs(arrFI);
+                _arrFI = arrFI.ToArray();
                 if (null == _arrPIDLs)
                 {
                     ReleaseAll();
@@ -450,19 +463,7 @@ namespace Peter
             // Release all resources first.
             ReleaseAll();
             _arrPIDLs = GetPIDLs(files);
-            this.ShowContextMenu(pointScreen);
-        }
-
-        /// <summary>
-        /// Shows the context menu
-        /// </summary>
-        /// <param name="dirs">DirectoryInfos (should all be in same directory)</param>
-        /// <param name="pointScreen">Where to show the menu</param>
-        public void ShowContextMenu(IEnumerable<DirectoryInfo> dirs, Point pointScreen)
-        {
-            // Release all resources first.
-            ReleaseAll();
-            _arrPIDLs = GetPIDLs(dirs);
+            _arrFI = files.ToArray();
             this.ShowContextMenu(pointScreen);
         }
 
@@ -494,9 +495,11 @@ namespace Peter
 
                 pMenu = CreatePopupMenu();
 
+                InsertMenu(pMenu, 0, (int)MFT.BYPOSITION, (int)CMD_OPENLOCATION, "Open file location");
+
                 int nResult = _oContextMenu.QueryContextMenu(
                     pMenu,
-                    0,
+                    0,  // Change to 1 if wanting to add a menu item before the first item.
                     CMD_FIRST,
                     CMD_LAST,
                     CMF.EXPLORE |
@@ -558,6 +561,7 @@ namespace Peter
         private IShellFolder _oDesktopFolder;
         private IShellFolder _oParentFolder;
         private IntPtr[] _arrPIDLs;
+        private FileInfo[] _arrFI;
         private string _strParentFolder;
         #endregion
 
@@ -566,6 +570,7 @@ namespace Peter
         private const int MAX_PATH = 260;
         private const uint CMD_FIRST = 1;
         private const uint CMD_LAST = 30000;
+        private const uint CMD_OPENLOCATION = CMD_LAST - 1;
 
         private const int S_OK = 0;
         private const int S_FALSE = 1;
@@ -581,7 +586,7 @@ namespace Peter
         [DllImport("shell32.dll")]
         private static extern Int32 SHGetDesktopFolder(out IntPtr ppshf);
 
-        // Takes a STRRET structure returned by IShellFolder::GetDisplayNameOf, converts it to a string, and places the result in a buffer. 
+        // Takes a STRRET structure returned by IShellFolder::GetDisplayNameOf, converts it to a string, and places the result in a buffer.
         [DllImport("shlwapi.dll", EntryPoint = "StrRetToBuf", ExactSpelling = false, CharSet = CharSet.Auto, SetLastError = true)]
         private static extern Int32 StrRetToBuf(IntPtr pstr, IntPtr pidl, StringBuilder pszBuf, int cchBuf);
 
@@ -592,6 +597,9 @@ namespace Peter
         // The CreatePopupMenu function creates a drop-down menu, submenu, or shortcut menu. The menu is initially empty. You can insert or append menu items by using the InsertMenuItem function. You can also use the InsertMenu function to insert menu items and the AppendMenu function to append menu items.
         [DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
         private static extern IntPtr CreatePopupMenu();
+
+        [DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern bool InsertMenu(IntPtr hMenu, Int32 wPosition, Int32 wFlags, Int32 wIDNewItem, string lpNewItem);
 
         // The DestroyMenu function destroys the specified menu and frees any memory that the menu occupies.
         [DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
@@ -685,7 +693,7 @@ namespace Peter
             public IntPtr hbmpItem;
         }
 
-        // A generalized global memory handle used for data transfer operations by the 
+        // A generalized global memory handle used for data transfer operations by the
         // IAdviseSink, IDataObject, and IOleCache interfaces
         [StructLayout(LayoutKind.Sequential)]
         private struct STGMEDIUM
@@ -719,7 +727,7 @@ namespace Peter
 
         #region Enums
 
-        // Defines the values used with the IShellFolder::GetDisplayNameOf and IShellFolder::SetNameOf 
+        // Defines the values used with the IShellFolder::GetDisplayNameOf and IShellFolder::SetNameOf
         // methods to specify the type of file or folder names used by those methods
         [Flags]
         private enum SHGNO
@@ -770,7 +778,7 @@ namespace Peter
             VALIDATE = 0x1000000
         }
 
-        // Determines the type of items included in an enumeration. 
+        // Determines the type of items included in an enumeration.
         // These values are used with the IShellFolder::EnumObjects method
         [Flags]
         private enum SHCONTF
@@ -1166,8 +1174,8 @@ namespace Peter
             [MarshalAs(UnmanagedType.LPArray)]
             IntPtr[] apidl,
             IntPtr psf,
-            IntPtr pfn, 
-            uint nKeys, 
+            IntPtr pfn,
+            uint nKeys,
             IntPtr ahkeys,
             out IntPtr ppcm);
 
@@ -1183,7 +1191,7 @@ namespace Peter
             Int32 ParseDisplayName(
                 IntPtr hwnd,
                 IntPtr pbc,
-                [MarshalAs(UnmanagedType.LPWStr)] 
+                [MarshalAs(UnmanagedType.LPWStr)]
             string pszDisplayName,
                 ref uint pchEaten,
                 out IntPtr ppidl,
@@ -1207,7 +1215,7 @@ namespace Peter
                 ref Guid riid,
                 out IntPtr ppv);
 
-            // Requests a pointer to an object's storage interface. 
+            // Requests a pointer to an object's storage interface.
             // Return value: error code, if any
             [PreserveSig]
             Int32 BindToStorage(
@@ -1221,11 +1229,11 @@ namespace Peter
             // CODE field of the HRESULT contains one of the following values (the code
             // can be retrived using the helper function GetHResultCode): Negative A
             // negative return value indicates that the first item should precede
-            // the second (pidl1 < pidl2). 
+            // the second (pidl1 < pidl2).
 
             // Positive A positive return value indicates that the first item should
             // follow the second (pidl1 > pidl2).  Zero A return value of zero
-            // indicates that the two items are the same (pidl1 = pidl2). 
+            // indicates that the two items are the same (pidl1 = pidl2).
             [PreserveSig]
             Int32 CompareIDs(
                 IntPtr lParam,
@@ -1241,7 +1249,7 @@ namespace Peter
                 Guid riid,
                 out IntPtr ppv);
 
-            // Retrieves the attributes of one or more file objects or subfolders. 
+            // Retrieves the attributes of one or more file objects or subfolders.
             // Return value: error code, if any
             [PreserveSig]
             Int32 GetAttributesOf(
@@ -1263,7 +1271,7 @@ namespace Peter
                 IntPtr rgfReserved,
                 out IntPtr ppv);
 
-            // Retrieves the display name for the specified file object or subfolder. 
+            // Retrieves the display name for the specified file object or subfolder.
             // Return value: error code, if any
             [PreserveSig()]
             Int32 GetDisplayNameOf(
@@ -1278,7 +1286,7 @@ namespace Peter
             Int32 SetNameOf(
                 IntPtr hwnd,
                 IntPtr pidl,
-                [MarshalAs(UnmanagedType.LPWStr)] 
+                [MarshalAs(UnmanagedType.LPWStr)]
             string pszName,
                 SHGNO uFlags,
                 out IntPtr ppidlOut);
@@ -1305,8 +1313,8 @@ namespace Peter
             Int32 InvokeCommand(
                 ref CMINVOKECOMMANDINFOEX info);
 
-            // Retrieves information about a shortcut menu command, 
-            // including the help string and the language-independent, 
+            // Retrieves information about a shortcut menu command,
+            // including the help string and the language-independent,
             // or canonical, name for the command
             [PreserveSig()]
             Int32 GetCommandString(
@@ -1336,8 +1344,8 @@ namespace Peter
             Int32 InvokeCommand(
                 ref CMINVOKECOMMANDINFOEX info);
 
-            // Retrieves information about a shortcut menu command, 
-            // including the help string and the language-independent, 
+            // Retrieves information about a shortcut menu command,
+            // including the help string and the language-independent,
             // or canonical, name for the command
             [PreserveSig()]
             Int32 GetCommandString(
@@ -1348,7 +1356,7 @@ namespace Peter
             StringBuilder commandstring,
                 int cch);
 
-            // Allows client objects of the IContextMenu interface to 
+            // Allows client objects of the IContextMenu interface to
             // handle messages associated with owner-drawn menu items
             [PreserveSig]
             Int32 HandleMenuMsg(
@@ -1375,8 +1383,8 @@ namespace Peter
             Int32 InvokeCommand(
                 ref CMINVOKECOMMANDINFOEX info);
 
-            // Retrieves information about a shortcut menu command, 
-            // including the help string and the language-independent, 
+            // Retrieves information about a shortcut menu command,
+            // including the help string and the language-independent,
             // or canonical, name for the command
             [PreserveSig()]
             Int32 GetCommandString(
@@ -1387,7 +1395,7 @@ namespace Peter
             StringBuilder commandstring,
                 int cch);
 
-            // Allows client objects of the IContextMenu interface to 
+            // Allows client objects of the IContextMenu interface to
             // handle messages associated with owner-drawn menu items
             [PreserveSig]
             Int32 HandleMenuMsg(
@@ -1395,7 +1403,7 @@ namespace Peter
                 IntPtr wParam,
                 IntPtr lParam);
 
-            // Allows client objects of the IContextMenu3 interface to 
+            // Allows client objects of the IContextMenu3 interface to
             // handle messages associated with owner-drawn menu items
             [PreserveSig]
             Int32 HandleMenuMsg2(
@@ -1476,7 +1484,7 @@ namespace Peter
         // ************************************************************************
 
         // ************************************************************************
-        // Event: HookInvoked 
+        // Event: HookInvoked
         public event HookEventHandler HookInvoked;
         protected void OnHookInvoked(HookEventArgs e)
         {
