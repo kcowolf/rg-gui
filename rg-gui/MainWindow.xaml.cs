@@ -91,8 +91,8 @@ namespace rg_gui
 
         private readonly RipGrepWrapper m_ripGrepWrapper;
 
-        public RangeObservableCollection<FileSearchResult> FileResultItems = new();
-        public RangeObservableCollection<ResultLine> ResultLineItems = new();
+        public RangeObservableCollection<FileSearchResult> FileResultItems { get; } = new();
+        public RangeObservableCollection<ResultLine> ResultLineItems { get; } = new();
 
         public MainWindow()
         {
@@ -143,16 +143,10 @@ namespace rg_gui
                 throw new Exception("rg.exe not found in installation path.");
             }
 
-            m_ripGrepWrapper = new RipGrepWrapper(ripgrepPath);
-
             m_maxSearchTerms = int.TryParse(config.AppSettings.Settings["MaxSearchTerms"]?.Value, out var maxSearchTerms) ? maxSearchTerms : DEFAULT_MAXSEARCHTERMS;
-
             m_multipleHighlightColors = bool.TryParse(config.AppSettings.Settings["MultipleHighlightColors"]?.Value, out var multipleHighlightColors) ? multipleHighlightColors : DEFAULT_MULTIPLEHIGHLIGHTCOLORS;
 
-            DataContext = m_ripGrepWrapper;
-            gridFileResults.DataContext = FileResultItems;
-            gridResultLines.DataContext = ResultLineItems;
-
+            m_ripGrepWrapper = new RipGrepWrapper(ripgrepPath);
             m_ripGrepWrapper.FileFound += OnFileAdded;
         }
 
@@ -240,7 +234,7 @@ namespace rg_gui
                 {
                     ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
 
-                    var lineResults = m_ripGrepWrapper.FileResults.Where(x => x.Key.path == addedItem.Path && x.Key.filename == addedItem.Filename).OrderBy(x => x.Key.lineNumber);
+                    var lineResults = m_ripGrepWrapper.FileResults.Where(x => x.Key.path == addedItem.Path && x.Key.filename == addedItem.Filename);
 
                     foreach (var lineResult in lineResults)
                     {

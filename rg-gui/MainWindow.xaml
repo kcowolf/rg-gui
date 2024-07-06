@@ -3,12 +3,28 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:local="clr-namespace:rg_gui"
         mc:Ignorable="d"
         Title="rg-gui" Height="450" Width="800"
-        d:DataContext="{d:DesignInstance Type=local:RipGrepWrapper}"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Closing="OnClosing" Icon="pack://application:,,,/icon.ico"
         Style="{StaticResource CustomWindowStyle}">
+    <Window.Resources>
+        <CollectionViewSource x:Key="FileResultItemsCollectionViewSource" Source="{Binding FileResultItems}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Path" Direction="Ascending" />
+                <scm:SortDescription PropertyName="Filename" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+
+        <CollectionViewSource x:Key="ResultLineItemsCollectionViewSource" Source="{Binding ResultLineItems}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Line" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+
     <Grid Margin="5,5,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -82,16 +98,16 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding}" AutoGenerateColumns="False" MouseDown="gridFileResults_MouseDown" SelectionChanged="gridFileResults_SelectionChanged" GridLinesVisibility="None" BorderThickness="1,1,1,0">
+            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding Source={StaticResource FileResultItemsCollectionViewSource}}" AutoGenerateColumns="False" MouseDown="gridFileResults_MouseDown" SelectionChanged="gridFileResults_SelectionChanged" GridLinesVisibility="None" BorderThickness="1,1,1,0">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Filename" Binding="{Binding Filename, Mode=OneWay}"/>
-                    <DataGridTextColumn Header="Path" Binding="{Binding Path, Mode=OneWay}"/>
+                    <DataGridTextColumn Header="Filename" Binding="{Binding Filename, Mode=OneWay}" SortDirection="Ascending"/>
+                    <DataGridTextColumn Header="Path" Binding="{Binding Path, Mode=OneWay}" SortDirection="Ascending"/>
                 </DataGrid.Columns>
             </DataGrid>
             <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" BorderThickness="0,1,0,0" BorderBrush="#FF688CAF"/>
-            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding}" AutoGenerateColumns="False" GridLinesVisibility="None" BorderThickness="1,1,1,0">
+            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding Source={StaticResource ResultLineItemsCollectionViewSource}}" AutoGenerateColumns="False" GridLinesVisibility="None" BorderThickness="1,1,1,0">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Line" Binding="{Binding Line, Mode=OneWay}"/>
+                    <DataGridTextColumn Header="Line" Binding="{Binding Line, Mode=OneWay}" SortDirection="Ascending"/>
                     <DataGridTemplateColumn Header="Content">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
