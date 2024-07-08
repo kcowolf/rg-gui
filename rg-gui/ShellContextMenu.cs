@@ -3,13 +3,15 @@
 // Licensed under The Code Project Open License (CPOL) 1.02, https://www.codeproject.com/info/cpol10.aspx
 
 using System;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Drawing;
-using System.Windows.Forms;
-using System.IO;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms;
 
 namespace Peter
 {
@@ -161,7 +163,7 @@ namespace Peter
             invoke.ptInvoke = new POINT(pointInvoke.X, pointInvoke.Y);
             invoke.nShow = SW.SHOWNORMAL;
 
-            if (nCmd == CMD_OPENLOCATION)
+            if (nCmd == (uint)CMD_CUSTOM.OpenLocation)
             {
                 SHOpenFolderAndSelectItems.ShowSelectedInExplorer.FilesOrFolders(_arrFI);
             }
@@ -495,8 +497,6 @@ namespace Peter
 
                 pMenu = CreatePopupMenu();
 
-                InsertMenu(pMenu, 0, (int)MFT.BYPOSITION, (int)CMD_OPENLOCATION, "Open file location");
-
                 int nResult = _oContextMenu.QueryContextMenu(
                     pMenu,
                     0,  // Change to 1 if wanting to add a menu item before the first item.
@@ -505,6 +505,12 @@ namespace Peter
                     CMF.EXPLORE |
                     CMF.NORMAL |
                     ((Control.ModifierKeys & Keys.Shift) != 0 ? CMF.EXTENDEDVERBS : 0));
+
+                // Put the "Open file location" and separator before "Properties".
+                var menuItemCount = GetMenuItemCount(pMenu);
+                var position = menuItemCount > 0 ? menuItemCount - 1 : 0;
+                InsertMenu(pMenu, position, (int)MFT.BYPOSITION, (int)CMD_CUSTOM.OpenLocation, "Open file location");
+                InsertMenu(pMenu, position + 1, (int)(MFT.BYPOSITION | MFT.SEPARATOR), 0, string.Empty);
 
                 Marshal.QueryInterface(iContextMenuPtr, ref IID_IContextMenu2, out iContextMenuPtr2);
                 Marshal.QueryInterface(iContextMenuPtr, ref IID_IContextMenu3, out iContextMenuPtr3);
@@ -552,6 +558,36 @@ namespace Peter
                 ReleaseAll();
             }
         }
+
+        private static void TraceMenu(IntPtr pMenu)
+        {
+            var count = GetMenuItemCount(pMenu);
+            for (var i = 0; i < count; i++)
+            {
+                var mii = new MENUITEMINFO
+                {
+                    cbSize = Marshal.SizeOf(typeof(MENUITEMINFO)),
+                    fMask = MIIM.FTYPE | MIIM.ID | MIIM.STATE | MIIM.STRING | MIIM.SUBMENU | MIIM.DATA
+                };
+
+                if (!GetMenuItemInfo(pMenu, i, true, ref mii))
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                if (mii.fType == 0)
+                {
+                    mii.dwTypeData = new string('\0', (mii.cch + 1) * 2);
+                    mii.cch++;
+                    if (!GetMenuItemInfo(pMenu, i, true, ref mii))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                    Trace.WriteLine($"{mii.dwTypeData} {mii.wID}");
+                }
+                else
+                {
+                    Trace.WriteLine($"{mii.fType} {mii.wID}");
+                }
+            }
+        }
         #endregion
 
         #region Local variabled
@@ -570,7 +606,6 @@ namespace Peter
         private const int MAX_PATH = 260;
         private const uint CMD_FIRST = 1;
         private const uint CMD_LAST = 30000;
-        private const uint CMD_OPENLOCATION = CMD_LAST - 1;
 
         private const int S_OK = 0;
         private const int S_FALSE = 1;
@@ -608,6 +643,12 @@ namespace Peter
         // Determines the default menu item on the specified menu
         [DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
         private static extern int GetMenuDefaultItem(IntPtr hMenu, bool fByPos, uint gmdiFlags);
+
+        [DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern bool GetMenuItemInfo(IntPtr hMenu, int uItem, bool fByPosition, ref MENUITEMINFO pmii);
+
+        [DllImport("user32")]
+        private static extern int GetMenuItemCount(IntPtr hMenu);
 
         #endregion
 
@@ -848,7 +889,8 @@ namespace Peter
         // The cmd for a custom added menu item
         private enum CMD_CUSTOM
         {
-            ExpandCollapse = (int)CMD_LAST + 1
+            ExpandCollapse = (int)CMD_LAST + 1,
+            OpenLocation = (int)CMD_LAST + 2,
         }
 
         // Flags used with the CMINVOKECOMMANDINFOEX structure
