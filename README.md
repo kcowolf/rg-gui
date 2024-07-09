@@ -48,4 +48,4 @@ Theme engine based on [WPFDarkTheme](https://github.com/AngryCarrot789/WPFDarkTh
 
 ## License
 
-All files are distributed under the [MIT License](LICENSE) unless otherwise specified.  ShellContextMenu.cs is licensed under The Code Project Open License (CPOL) 1.02, https://www.codeproject.com/info/cpol10.aspx.
+All files are distributed under the [MIT License](LICENSE) unless otherwise specified.  ShellContextMenu.cs is licensed under The Code Project Open License (CPOL) 1.02, https://www.codeproject.com/info/cpol10.aspx.  SHOpenFolderAndSelectItems.cs is licensed under the BSD 2-Clause License, BSD 2-Clause License, https://opensource.org/license/bsd-2-clause.
