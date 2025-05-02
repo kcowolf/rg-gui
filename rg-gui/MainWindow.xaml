@@ -98,14 +98,14 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding Source={StaticResource FileResultItemsCollectionViewSource}}" AutoGenerateColumns="False" MouseDown="gridFileResults_MouseDown" SelectionChanged="gridFileResults_SelectionChanged" GridLinesVisibility="None" BorderThickness="1,1,1,0">
+            <DataGrid Grid.Row="0" Grid.Column="0" x:Name="gridFileResults" ItemsSource="{Binding Source={StaticResource FileResultItemsCollectionViewSource}}" AutoGenerateColumns="False" MouseDown="gridFileResults_MouseDown" SelectionChanged="gridFileResults_SelectionChanged" GridLinesVisibility="None" BorderThickness="1,1,1,0" CanUserDeleteRows="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Filename" Binding="{Binding Filename, Mode=OneWay}" SortDirection="Ascending"/>
                     <DataGridTextColumn Header="Path" Binding="{Binding Path, Mode=OneWay}" SortDirection="Ascending"/>
                 </DataGrid.Columns>
             </DataGrid>
             <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" BorderThickness="0,1,0,0" BorderBrush="#FF688CAF"/>
-            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding Source={StaticResource ResultLineItemsCollectionViewSource}}" AutoGenerateColumns="False" GridLinesVisibility="None" BorderThickness="1,1,1,0">
+            <DataGrid Grid.Row="0" Grid.Column="2" x:Name="gridResultLines" ItemsSource="{Binding Source={StaticResource ResultLineItemsCollectionViewSource}}" AutoGenerateColumns="False" GridLinesVisibility="None" BorderThickness="1,1,1,0" CanUserDeleteRows="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Line" Binding="{Binding Line, Mode=OneWay}" SortDirection="Ascending"/>
                     <DataGridTemplateColumn Header="Content">
