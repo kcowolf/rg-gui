@@ -13,6 +13,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using static rg_gui.RipGrepWrapper;
 
 namespace rg_gui
@@ -232,6 +233,9 @@ namespace rg_gui
             {
                 if (e.AddedItems[0] is FileSearchResult addedItem)
                 {
+                    // Scroll gridResultLines back to left end.
+                    GetScrollViewer(gridResultLines)?.ScrollToLeftEnd();
+
                     ResultLineItems.Reset(Enumerable.Empty<ResultLine>());
 
                     var lineResults = m_ripGrepWrapper.FileResults.Where(x => x.Key.path == addedItem.Path && x.Key.filename == addedItem.Filename);
@@ -244,6 +248,34 @@ namespace rg_gui
                     txtResultLineStatus.Text = $"{ResultLineItems.Count} lines matched.";
                 }
             }
+        }
+
+        private void grid_RequestBringIntoViewHandler(object sender, RequestBringIntoViewEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private static ScrollViewer? GetScrollViewer(UIElement? element)
+        {
+            if (element == null)
+            {
+                return null;
+            }
+
+            ScrollViewer? result = null;
+            for (var i = 0; result == null && i < VisualTreeHelper.GetChildrenCount(element); i++)
+            {
+                var child = VisualTreeHelper.GetChild(element, i);
+                if (child is ScrollViewer scrollViewer)
+                {
+                    result = scrollViewer;
+                }
+                else
+                {
+                    result = GetScrollViewer(child as UIElement);
+                }
+            }
+            return result;
         }
 
         private async void btnStart_Click(object sender, RoutedEventArgs e)
