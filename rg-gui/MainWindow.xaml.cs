@@ -166,11 +166,14 @@ namespace rg_gui
         private void OnClosing(object? sender, EventArgs e)
         {
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            SetConfigValue(config, "MainWindowLeft", Left.ToString());
-            SetConfigValue(config, "MainWindowTop", Top.ToString());
-            SetConfigValue(config, "MainWindowWidth", Width.ToString());
-            SetConfigValue(config, "MainWindowHeight", Height.ToString());
-            SetConfigValue(config, "MainWindowState", ((int)WindowState).ToString());
+            if (WindowState != WindowState.Minimized)
+            {
+                SetConfigValue(config, "MainWindowLeft", Left.ToString());
+                SetConfigValue(config, "MainWindowTop", Top.ToString());
+                SetConfigValue(config, "MainWindowWidth", Width.ToString());
+                SetConfigValue(config, "MainWindowHeight", Height.ToString());
+                SetConfigValue(config, "MainWindowState", ((int)WindowState).ToString());
+            }
 
             SetConfigValue(config, "BasePath", txtBasePath.Text);
             SetConfigValue(config, "IncludeFiles", txtIncludeFiles.Text);
