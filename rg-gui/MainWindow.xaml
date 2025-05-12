@@ -92,7 +92,7 @@
             </ComboBox>
         </Grid>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" x:Name="gridResults">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>
