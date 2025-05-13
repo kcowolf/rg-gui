@@ -210,6 +210,13 @@ namespace rg_gui
                     SetConfigValue(config, "GridSplitterWidth", gridSplitterWidthStr);
                     SetConfigValue(config, "GridResultLinesWidth", gridResultLinesWidthStr);
                 }
+                else
+                {
+                    // Unable to get the current values for some reason.  Save default values instead.
+                    SetConfigValue(config, "GridFileResultsWidth", "*");
+                    SetConfigValue(config, "GridSplitterWidth", GRID_SPLITTER_WIDTH.ToString("N0"));
+                    SetConfigValue(config, "GridResultLinesWidth", "*");
+                }
             }
 
             SetConfigValue(config, "BasePath", txtBasePath.Text);
