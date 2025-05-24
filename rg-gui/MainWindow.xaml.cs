@@ -47,6 +47,8 @@ namespace rg_gui
 
         private const int HIGHLIGHT_COLORS_COUNT = 4;
 
+        private const double GRID_SPLITTER_WIDTH = 5.0;
+
         private string m_currentInput = string.Empty;
         private string? m_currentSuggestion = string.Empty;
         private string m_currentText = string.Empty;
@@ -113,6 +115,29 @@ namespace rg_gui
             chkCaseSensitive.IsChecked = bool.TryParse(config.AppSettings.Settings["CaseSensitive"]?.Value, out var caseSensitive) ? caseSensitive : DEFAULT_CASESENSITIVE;
             chkRecursive.IsChecked = bool.TryParse(config.AppSettings.Settings["Recursive"]?.Value, out var recursive) ? recursive : DEFAULT_RECURSIVE;
 
+            var gridFileResultsWidthStr = config.AppSettings.Settings["GridFileResultsWidth"]?.Value;
+            var gridSplitterWidthStr = config.AppSettings.Settings["GridSplitterWidth"]?.Value;
+            var gridResultLinesWidthStr = config.AppSettings.Settings["GridResultLinesWidth"]?.Value;
+
+            var gridLengthConverter = new GridLengthConverter();
+
+            if (gridFileResultsWidthStr != null && gridSplitterWidthStr != null && gridResultLinesWidthStr != null)
+            {
+                var gridFileResultsWidth = (GridLength?)gridLengthConverter.ConvertFromString(gridFileResultsWidthStr);
+                var gridSplitterWidth = (GridLength?)gridLengthConverter.ConvertFromString(gridSplitterWidthStr);
+                var gridResultLinesWidth = (GridLength?)gridLengthConverter.ConvertFromString(gridResultLinesWidthStr);
+
+                // Sanity check the column widths before restoring them.
+                if (gridFileResultsWidth != null && gridSplitterWidth != null && gridResultLinesWidth != null &&
+                    (gridFileResultsWidth.Value.Value + gridSplitterWidth.Value.Value + gridResultLinesWidth.Value.Value) < Width &&
+                    gridSplitterWidth.Value.Value == GRID_SPLITTER_WIDTH)
+                {
+                    gridResults.ColumnDefinitions[0].Width = (GridLength)gridFileResultsWidth;
+                    gridResults.ColumnDefinitions[1].Width = (GridLength)gridSplitterWidth;
+                    gridResults.ColumnDefinitions[2].Width = (GridLength)gridResultLinesWidth;
+                }
+            }
+
             var fileEncoding = cmbEncoding.FindName(config.AppSettings.Settings["FileEncoding"]?.Value ?? DEFAULT_FILEENCODING);
             if (fileEncoding != null)
             {
@@ -173,6 +198,25 @@ namespace rg_gui
                 SetConfigValue(config, "MainWindowWidth", Width.ToString());
                 SetConfigValue(config, "MainWindowHeight", Height.ToString());
                 SetConfigValue(config, "MainWindowState", ((int)WindowState).ToString());
+
+                var gridLengthConverter = new GridLengthConverter();
+                var gridFileResultsWidthStr = gridLengthConverter.ConvertToString(gridResults.ColumnDefinitions[0].Width);
+                var gridSplitterWidthStr = gridLengthConverter.ConvertToString(gridResults.ColumnDefinitions[1].Width);
+                var gridResultLinesWidthStr = gridLengthConverter.ConvertToString(gridResults.ColumnDefinitions[2].Width);
+
+                if (gridFileResultsWidthStr != null && gridSplitterWidthStr != null && gridResultLinesWidthStr != null)
+                {
+                    SetConfigValue(config, "GridFileResultsWidth", gridFileResultsWidthStr);
+                    SetConfigValue(config, "GridSplitterWidth", gridSplitterWidthStr);
+                    SetConfigValue(config, "GridResultLinesWidth", gridResultLinesWidthStr);
+                }
+                else
+                {
+                    // Unable to get the current values for some reason.  Save default values instead.
+                    SetConfigValue(config, "GridFileResultsWidth", "*");
+                    SetConfigValue(config, "GridSplitterWidth", GRID_SPLITTER_WIDTH.ToString("N0"));
+                    SetConfigValue(config, "GridResultLinesWidth", "*");
+                }
             }
 
             SetConfigValue(config, "BasePath", txtBasePath.Text);
