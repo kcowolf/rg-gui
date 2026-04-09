@@ -12,6 +12,7 @@ namespace rg_gui
         public string Theme { get; set; }
         public int MaxSearchTerms { get; set; }
         public bool Multicolor { get; set; }
+        public int MaxLineHighlights { get; set; }
 
         public SettingsWindow()
         {
@@ -39,6 +40,12 @@ namespace rg_gui
         {
             var input = txtMaxTerms.Text;
             txtMaxTerms.Text = new string(input.Where(c => char.IsDigit(c)).ToArray());
+        }
+
+        private void txtMaxLineHighlights_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var input = txtMaxLineHighlights.Text;
+            txtMaxLineHighlights.Text = new string(input.Where(c => char.IsDigit(c)).ToArray());
         }
     }
 }

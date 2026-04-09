@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:rg_gui"
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
-        Title="Settings" Height="150" Width="250"
+        Title="Settings" Height="200" Width="250"
         Style="{StaticResource CustomWindowStyle}"
         ResizeMode="NoResize">
     <Grid>
@@ -19,6 +19,7 @@
 
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -40,6 +41,9 @@
 
             <Label Grid.Row="2" Grid.Column="0" Margin="0,0,5,5" Content="Multi-color highlighting" VerticalContentAlignment="Center"/>
             <CheckBox Grid.Row="2" Grid.Column="1" Margin="5,0,0,5" x:Name="chkMulticolor" VerticalContentAlignment="Center" IsChecked="{Binding Path=Multicolor, Mode=TwoWay}"/>
+
+            <Label Grid.Row="3" Grid.Column="0" Margin="0,0,5,5" Content="Max highlights per line" VerticalContentAlignment="Center"/>
+            <TextBox Grid.Row="3" Grid.Column="1" Margin="5,0,0,5" x:Name="txtMaxLineHighlights" VerticalAlignment="Center" Text="{Binding Path=MaxLineHighlights, Mode=TwoWay}" TextChanged="txtMaxLineHighlights_TextChanged"/>
         </Grid>
 
         <Grid Grid.Row="2">

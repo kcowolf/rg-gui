@@ -64,6 +64,9 @@ namespace rg_gui
         private const bool DEFAULT_MULTIPLEHIGHLIGHTCOLORS = true;
         private bool m_multipleHighlightColors = DEFAULT_MULTIPLEHIGHLIGHTCOLORS;
 
+        private const int DEFAULT_MAXLINEHIGHLIGHTS = 100;
+        private int m_maxLineHighlights = DEFAULT_MAXLINEHIGHLIGHTS;
+
         public class FileSearchResult
         {
             public string Path { get; }
@@ -172,6 +175,8 @@ namespace rg_gui
             m_maxSearchTerms = int.TryParse(config.AppSettings.Settings["MaxSearchTerms"]?.Value, out var maxSearchTerms) ? maxSearchTerms : DEFAULT_MAXSEARCHTERMS;
             m_multipleHighlightColors = bool.TryParse(config.AppSettings.Settings["MultipleHighlightColors"]?.Value, out var multipleHighlightColors) ? multipleHighlightColors : DEFAULT_MULTIPLEHIGHLIGHTCOLORS;
 
+            m_maxLineHighlights = int.TryParse(config.AppSettings.Settings["MaxLineHighlights"]?.Value, out var maxLineHighlights) ? maxLineHighlights : DEFAULT_MAXLINEHIGHLIGHTS;
+
             m_ripGrepWrapper = new RipGrepWrapper(ripgrepPath);
             m_ripGrepWrapper.FileFound += OnFileAdded;
         }
@@ -232,6 +237,8 @@ namespace rg_gui
             SetConfigValue(config, "MaxFileSizeUnit", ((ComboBoxItem)cmbFileSizeUnit.SelectedItem).Name);
             SetConfigValue(config, "Theme", m_currentTheme.ToString());
             SetConfigValue(config, "MultipleHighlightColors", m_multipleHighlightColors.ToString());
+            SetConfigValue(config, "MaxLineHighlights", m_maxLineHighlights.ToString());
+
             config.Save();
 
             ConfigurationManager.RefreshSection("appSettings");
@@ -440,6 +447,7 @@ namespace rg_gui
                 Theme = m_currentTheme.GetName(),
                 MaxSearchTerms = m_maxSearchTerms,
                 Multicolor = m_multipleHighlightColors,
+                MaxLineHighlights = m_maxLineHighlights
             };
 
             if (settingsWindow.ShowDialog() == true)
@@ -448,6 +456,7 @@ namespace rg_gui
                 ThemesController.SetTheme(m_currentTheme);
                 m_maxSearchTerms = settingsWindow.MaxSearchTerms;
                 m_multipleHighlightColors = settingsWindow.Multicolor;
+                m_maxLineHighlights = settingsWindow.MaxLineHighlights;
             }
         }
 
@@ -509,54 +518,58 @@ namespace rg_gui
 
         private string GetColorizedString(string source, IEnumerable<TermResult> termResults)
         {
-            var rangeColors = new Dictionary<Range, int>();
-
-            // Only add ranges which don't overlap values we've already added to rangeColors.
-            // If a range partially overlaps, take the non-overlapping portion.
-            // Terms which are earlier in the list take priority.
-
-            List<Range> remainingMatchRangesBefore;
-            List<Range> remainingMatchRangesAfter;
-
-            var termIndexes = termResults.Select(x => x.TermIndex).Distinct().OrderBy(x => x).ToList();
-
-            foreach (var termIndex in termIndexes)
+            // Algorithm for calculating highlightRanges was written with assistance from GitHub Copilot AI (GPT-4.1).
+            var segmentEdges = new List<int>();
+            foreach (var termResult in termResults)
             {
-                var termMatchRanges = termResults.Where(x => x.TermIndex == termIndex).OrderBy(x => x.Range.Start).Select(x => x.Range);
-                remainingMatchRangesAfter = termMatchRanges.ToList();
+                segmentEdges.Add(termResult.Start);
+                segmentEdges.Add(termResult.End + 1);  // +1, next place a segment can start is immediately after the current one.
+            }
+            var sortedEdges = segmentEdges.Distinct().OrderBy(x => x).ToList();
 
-                foreach (var previousRange in rangeColors.Keys)
+            var highlightResults = new List<TermResult>();
+            TermResult? previous = null;
+
+            for (var i = 0; i < sortedEdges.Count - 1 && highlightResults.Count < m_maxLineHighlights; i++)
+            {
+                var segmentStart = sortedEdges[i];
+                var segmentEnd = sortedEdges[i + 1] - 1;  // -1, this segment ends immediately before the next one begins.
+
+                // Get termResult with the lowest TermIndex overlapping this segment, if any.  This determines the color for this segment.
+                var termResult = termResults.Where(x => segmentStart >= x.Start && segmentEnd <= x.End).OrderBy(x => x.TermIndex).FirstOrDefault();
+                if (termResult != null)
                 {
-                    remainingMatchRangesBefore = remainingMatchRangesAfter;
-                    remainingMatchRangesAfter = new List<Range>();
-                    
-                    foreach (var remainingMatchRange in remainingMatchRangesBefore)
+                    // See if we should expand the previous segment or add a new one.
+                    if (previous?.End == segmentStart - 1 && previous?.TermIndex == termResult.TermIndex)
                     {
-                        remainingMatchRangesAfter.AddRange(remainingMatchRange.GetNonOverlappingRanges(previousRange));
+                        // Previous result is adjacent to the current one, but TermIndex hasn't changed.  Expand previous range.
+                        previous.End = segmentEnd;
                     }
-                }
-
-                foreach (var range in remainingMatchRangesAfter)
-                {
-                    rangeColors.Add(range, m_multipleHighlightColors ? termIndex % HIGHLIGHT_COLORS_COUNT : 0);
+                    else
+                    {
+                        previous = new TermResult(segmentStart, segmentEnd, termResult.TermIndex);
+                        highlightResults.Add(previous);
+                    }
                 }
             }
 
             var stringBuilder = new StringBuilder();
 
             var startingIndex = 0;
-            foreach (var rangeKey in rangeColors.Keys.OrderBy(x => x.Start))
+            foreach (var highlightResult in highlightResults)
             {
-                if (startingIndex != rangeKey.Start)
+                if (startingIndex != highlightResult.Start)
                 {
-                    stringBuilder.Append(EscapeString(source.Substring(startingIndex, rangeKey.Start - startingIndex)));
+                    stringBuilder.Append(EscapeString(source.Substring(startingIndex, highlightResult.Start - startingIndex)));
                 }
 
-                stringBuilder.Append($"<c{rangeColors[rangeKey]}>");
-                stringBuilder.Append(EscapeString(source.Substring(rangeKey.Start, rangeKey.End - rangeKey.Start + 1)));
-                stringBuilder.Append($"</c{rangeColors[rangeKey]}>");
+                var colorIndex = m_multipleHighlightColors ? highlightResult.TermIndex % HIGHLIGHT_COLORS_COUNT : 0;
 
-                startingIndex = rangeKey.End + 1;
+                stringBuilder.Append($"<c{colorIndex}>");
+                stringBuilder.Append(EscapeString(source.Substring(highlightResult.Start, highlightResult.End - highlightResult.Start + 1)));
+                stringBuilder.Append($"</c{colorIndex}>");
+
+                startingIndex = highlightResult.End + 1;
             }
 
             stringBuilder.Append(EscapeString(source.Substring(startingIndex)));

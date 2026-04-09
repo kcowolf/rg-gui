@@ -54,19 +54,6 @@ namespace rg_gui
             public MaxFileSizeUnit MaxFileSizeUnit { get; set; } = MaxFileSizeUnit.None;
         }
 
-        public class TermResult
-        {
-            public TermResult(int termIndex, Range range)
-            {
-                TermIndex = termIndex;
-                Range = range;
-            }
-
-            public int TermIndex { get; }
-
-            public Range Range { get; }
-        }
-
         public class LineResult
         {
             public LineResult(string lineContent)
@@ -193,7 +180,7 @@ namespace rg_gui
             var cmd = Cli.Wrap(m_ripGrepPath)
                 .WithArguments(argsBuilder.ToString())
                 .WithValidation(CommandResultValidation.None);
-            
+
             try
             {
                 await foreach (var cmdEvent in cmd.ListenAsync(Encoding.UTF8, cancellationToken))
@@ -220,7 +207,7 @@ namespace rg_gui
                                         if (!FilesFound.Contains((path, filename, termIndex)))
                                         {
                                             FilesFound.Add((path, filename, termIndex));
-                                            if (FilesFound.Where(x => x.path == path && x.filename == filename).Count() == m_searchTermCount)
+                                            if (FilesFound.Count(x => x.path == path && x.filename == filename) == m_searchTermCount)
                                             {
                                                 RaiseFileFound(path, filename);
                                             }
@@ -231,10 +218,10 @@ namespace rg_gui
                                             FileResults.GetOrAdd((path, filename, lineNumber), new LineResult(RemoveAnsiColors(result[2])));
                                         }
 
-                                        var termMatches = GetTermMatches(result[2]);
+                                        var termMatches = GetTermMatches(result[2], termIndex);
                                         foreach (var termMatch in termMatches)
                                         {
-                                            FileResults[(path, filename, lineNumber)].TermResults.Add(new TermResult(termIndex, termMatch));
+                                            FileResults[(path, filename, lineNumber)].TermResults.Add(termMatch);
                                         }
                                     }
                                 }
@@ -294,11 +281,11 @@ namespace rg_gui
             return Regex.Replace(source, @"\x1B\[[^@-~]*[@-~]", string.Empty);
         }
 
-        private static IList<Range> GetTermMatches(string source)
+        private static IList<TermResult> GetTermMatches(string source, int termIndex)
         {
             var ripGrepMatches = Regex.Matches(source, @"\x1B\[0m\x1B\[1m\x1B\[31m(.+?)\x1B\[0m");
 
-            var termMatches = new List<Range>();
+            var termMatches = new List<TermResult>();
 
             var processIndex = 0;
             var originalStringIndex = 0;
@@ -311,7 +298,7 @@ namespace rg_gui
 
                 var start = originalStringIndex;
                 originalStringIndex += ripGrepMatches[i].Groups[1].Value.Length;
-                termMatches.Add(new Range(start, originalStringIndex - 1));
+                termMatches.Add(new TermResult(start, originalStringIndex - 1, termIndex));
                 processIndex = ripGrepMatches[i].Index + ripGrepMatches[i].Length;
             }
 
