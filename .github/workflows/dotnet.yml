@@ -41,7 +41,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Publish
-      run: dotnet publish rg-gui.sln --configuration Release --framework net8.0-windows --output ./publish --runtime win-x64  --self-contained false -p:PublishSingleFile=true
+      run: dotnet publish rg-gui.sln --configuration Release --framework net8.0-windows --output ./publish --runtime win-x64  --no-self-contained -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false
 
     - name: Compress files
       run: |-
