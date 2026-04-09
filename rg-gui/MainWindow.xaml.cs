@@ -518,7 +518,9 @@ namespace rg_gui
             List<Range> remainingMatchRangesBefore;
             List<Range> remainingMatchRangesAfter;
 
-            foreach (var termIndex in termResults.OrderBy(x => x.TermIndex).Select(x => x.TermIndex))
+            var termIndexes = termResults.Select(x => x.TermIndex).Distinct().OrderBy(x => x).ToList();
+
+            foreach (var termIndex in termIndexes)
             {
                 var termMatchRanges = termResults.Where(x => x.TermIndex == termIndex).OrderBy(x => x.Range.Start).Select(x => x.Range);
                 remainingMatchRangesAfter = termMatchRanges.ToList();
@@ -527,7 +529,7 @@ namespace rg_gui
                 {
                     remainingMatchRangesBefore = remainingMatchRangesAfter;
                     remainingMatchRangesAfter = new List<Range>();
-
+                    
                     foreach (var remainingMatchRange in remainingMatchRangesBefore)
                     {
                         remainingMatchRangesAfter.AddRange(remainingMatchRange.GetNonOverlappingRanges(previousRange));
